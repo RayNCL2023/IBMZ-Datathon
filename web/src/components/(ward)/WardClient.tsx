@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { LuClipboardList } from "react-icons/lu";
 import { useWard } from "@/contexts/WardContext";
 import { useDesign } from "@/contexts/DesignContext";
 import { useReplay } from "@/contexts/ReplayContext";
@@ -11,8 +12,11 @@ import BedCard from "@/components/(ward)/BedCard";
 import BedTable from "@/components/(ward)/BedTable";
 import BedTile from "@/components/(ward)/BedTile";
 import BayMap from "@/components/(ward)/BayMap";
+import { useShiftSummary } from "@/components/(ward)/ShiftSummaryModal";
+import ButtonSecondary from "@/components/(buttons)/ButtonSecondary";
 import Segmented from "@/components/(ui)/Segmented";
 import { storage } from "@/lib/storage";
+import { flags } from "@/var/flags";
 import { clockLabel } from "@/lib/format";
 import { EmptyState, ErrorState, Skeleton } from "@/components/(ui)/States";
 
@@ -32,6 +36,7 @@ export default function () {
     const [sort, setSort] = useState<SortKey>("priority");
     const [layout, setLayout] = useState<WardLayout>(config.wardLayout);
     const [mode, setModeState] = useState<WardMode>("simple");
+    const shiftSummary = useShiftSummary();
 
     useEffect(() => {
         if (storage.get(MODE_KEY) === "analytical") {
@@ -54,16 +59,23 @@ export default function () {
             <PageHeader
                 title="ICU ward"
                 actions={
-                    <Segmented
-                        label="Ward view"
-                        value={mode}
-                        onChange={setMode}
-                        className="rounded-full [&>button]:rounded-full [&>button]:px-[1rem]"
-                        options={[
-                            { value: "simple", label: "Simple", title: "Floor plan: pinging beds with every alert at a glance" },
-                            { value: "analytical", label: "Analytical", title: "Every value, sortable" },
-                        ]}
-                    />
+                    <>
+                        {flags.shiftSummary && (
+                            <ButtonSecondary onClick={shiftSummary}>
+                                <LuClipboardList size={16} /> Shift summary
+                            </ButtonSecondary>
+                        )}
+                        <Segmented
+                            label="Ward view"
+                            value={mode}
+                            onChange={setMode}
+                            className="rounded-full [&>button]:rounded-full [&>button]:px-[1rem]"
+                            options={[
+                                { value: "simple", label: "Simple", title: "Floor plan: pinging beds with every alert at a glance" },
+                                { value: "analytical", label: "Analytical", title: "Every value, sortable" },
+                            ]}
+                        />
+                    </>
                 }
                 description={`Twelve held-out ICU stays replayed hour by hour on LinuxONE. Showing ${clockLabel(hour)} (hour ${hour})${privacy ? ` with the federated sepsis model (ε = ${privacy})` : ""}.`}
             />

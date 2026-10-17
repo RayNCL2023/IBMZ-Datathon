@@ -11,6 +11,7 @@ import type {
     FatiguePoint,
     FatigueResponse,
     HandoverResponse,
+    ShiftSummaryResponse,
     Head,
     HeadReport,
     HealthResponse,
@@ -28,6 +29,7 @@ import type {
 } from "./types";
 import { HEADS, VITAL_KEYS } from "./types";
 import { buildSbar, narrate } from "./sbar";
+import { buildShift, narrateShift } from "./shift";
 
 // ---------------------------------------------------------------------------------------------------------
 // Randomness
@@ -320,6 +322,14 @@ export function handover(id: string, hour: number | null, privacy: string | null
     const { row } = physiology(profile, p.timeline[p.timeline.length - 1].hour);
     const sbar = buildSbar(p, row);
     return { patientId: id, hour: p.timeline[p.timeline.length - 1].hour, sbar, ...narrate(sbar), cached: false };
+}
+
+export function shiftSummary(hours: number, hour: number, privacy: string | null): ShiftSummaryResponse {
+    if (!Number.isInteger(hours) || hours < 1 || hours > 72) {
+        throw new Error("hours must be between 1 and 72");
+    }
+    const summary = buildShift(PROFILES.map((p) => patient(p.id, hour, privacy)), hour, hours);
+    return { privacy, ...summary, ...narrateShift(summary), cached: false };
 }
 
 export function predict(body: PredictRequest): PredictResponse {

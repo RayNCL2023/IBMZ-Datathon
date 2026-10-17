@@ -94,6 +94,42 @@ export type HandoverResponse = {
     cached: boolean;
 };
 
+// ---------- /shift-summary ----------
+export type ShiftBedStatus = "worsening" | "stable" | "improving" | "discharged";
+
+export type ShiftBed = {
+    bed: number;
+    patientId: string;
+    hospital: Hospital;
+    status: ShiftBedStatus;
+    alerting: Head[];
+    newAlarms: { head: Head; hour: number }[];
+    cleared: Head[];
+    news2: { start: number; end: number; max: number; alert: boolean; newAlert: boolean };
+    priority: { start: number; end: number };
+    topRisk: Head;
+    risks: Partial<Record<Head, { start: number; end: number }>>;
+    line: string;
+};
+
+export type ShiftSummaryResponse = {
+    privacy: PrivacyKey | null;
+    fromHour: number;
+    hour: number;
+    hours: number;
+    overview: string;
+    counts: Record<"beds" | "alerting" | "newAlarms" | "bedsWithNewAlarms" | ShiftBedStatus, number>;
+    beds: ShiftBed[];
+    narrative: string | null;
+    verified?: boolean;
+    unverifiedNumbers?: string[];
+    statedAsDiagnosis?: string[];
+    generationSeconds?: number;
+    tokens?: number;
+    error?: string;
+    cached: boolean;
+};
+
 // ---------- /predict, /news2 ----------
 export type VitalRow = Partial<Record<string, number | null>>;
 

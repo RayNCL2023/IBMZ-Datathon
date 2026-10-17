@@ -109,27 +109,38 @@ def _numbers(text: str) -> set[str]:
     return {n.rstrip(".").lstrip("0") or "0" for n in re.findall(r"\d+(?:\.\d+)?", text)}
 
 
-def narrate(sbar: dict) -> dict:
-    """Granite's spoken-style summary of situation + assessment, with any number not in the facts flagged."""
+def generate(system: str, user: str, max_tokens: int) -> dict:
+    """One Granite completion: {"text", "seconds", "tokens"}, or {"error"} when it is not configured or down."""
     if not GRANITE_URL:
-        return {"narrative": None, "error": "GRANITE_URL not set"}
-    source = f"{sbar['situation']}\n{sbar['assessment']}"
-    body = json.dumps({"system": SYSTEM, "user": f"Facts:\n{source}\n\nWrite the handover summary.", "max_tokens": 140})
+        return {"error": "GRANITE_URL not set"}
+    body = json.dumps({"system": system, "user": user, "max_tokens": max_tokens})
     req = urllib.request.Request(f"{GRANITE_URL}/generate", data=body.encode(), headers={"content-type": "application/json"})
     try:
         with urllib.request.urlopen(req, timeout=TIMEOUT_S) as resp:
-            out = json.loads(resp.read())
+            return json.loads(resp.read())
     except OSError as e:
-        return {"narrative": None, "error": f"granite unavailable: {e}"}
+        return {"error": f"granite unavailable: {e}"}
 
-    unverified = sorted(_numbers(out["text"]) - _numbers(source))
-    sentences = re.split(r"(?<=[.!?])\s+", out["text"])
+
+def check(text: str, source: str, out: dict) -> dict:
+    """Flag any number Granite wrote that is not in the facts, and any sentence naming a condition as a diagnosis."""
+    unverified = sorted(_numbers(text) - _numbers(source))
+    sentences = re.split(r"(?<=[.!?])\s+", text)
     as_diagnosis = [x for x in sentences if any(w in x.lower() for w in CONDITION_WORDS) and "risk" not in x.lower()]
     return {
-        "narrative": out["text"],
+        "narrative": text,
         "verified": not unverified and not as_diagnosis,
         "unverifiedNumbers": unverified,
         "statedAsDiagnosis": as_diagnosis,
         "generationSeconds": out["seconds"],
         "tokens": out["tokens"],
     }
+
+
+def narrate(sbar: dict) -> dict:
+    """Granite's spoken-style summary of situation + assessment, with any number not in the facts flagged."""
+    source = f"{sbar['situation']}\n{sbar['assessment']}"
+    out = generate(SYSTEM, f"Facts:\n{source}\n\nWrite the handover summary.", 140)
+    if "error" in out:
+        return {"narrative": None, "error": out["error"]}
+    return check(out["text"], source, out)

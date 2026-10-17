@@ -7,7 +7,7 @@ import time
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
-from . import features, handover, keys
+from . import features, handover, keys, shift
 from . import model as risk_model
 from . import news2
 from .ward import VITALS, Ward
@@ -198,6 +198,30 @@ def handover_note(patient_id: str, hour: int | None = None, privacy: str | None 
     out = {"patientId": patient_id, "hour": key[1], "sbar": sbar, **handover.narrate(sbar)}
     if out.get("narrative"):
         _handovers[key] = out
+    return {**out, "cached": False}
+
+
+_shifts: dict[tuple, dict] = {}
+MAX_SHIFT_HOURS = 72
+
+
+@app.post("/shift-summary", dependencies=[Depends(require_key)])
+def shift_summary(hours: int, hour: int, privacy: str | None = None):
+    """Ward summary of the last `hours` hours up to replay `hour`: per bed, new and cleared alarms and NEWS2 and
+    risk change (rules), worst first, and `narrative`, Granite's spoken handover for the nurse in charge with any
+    number not in the facts flagged. Cached per hour, window and privacy setting."""
+    if not 1 <= hours <= MAX_SHIFT_HOURS:
+        raise HTTPException(status_code=400, detail=f"hours must be between 1 and {MAX_SHIFT_HOURS}")
+    if hour < 0:
+        raise HTTPException(status_code=400, detail="hour must be >= 0")
+    key = (hour, hours, privacy)
+    if key in _shifts:
+        return {**_shifts[key], "cached": True}
+
+    summary = shift.facts([patient(p["id"], hour, privacy) for p in ward.patients], hour, hours)
+    out = {"privacy": privacy, **summary, **shift.narrate(summary)}
+    if out.get("narrative"):
+        _shifts[key] = out
     return {**out, "cached": False}
 
 

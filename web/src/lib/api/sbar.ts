@@ -3,7 +3,7 @@ import { HEAD_META, readable } from "@/var/clinical";
 import type { HandoverResponse, Head, PatientResponse, Sbar, VitalRow, Vitals } from "./types";
 import { bedNo } from "@/lib/format";
 
-const NAMES: Record<Head, string> = {
+export const NAMES: Record<Head, string> = {
     sepsis: "sepsis",
     hypotension: "hypotension (low blood pressure)",
     aki: "acute kidney injury",

@@ -39,6 +39,8 @@ export const flags = {
     alertToasts: bool(process.env.NEXT_PUBLIC_ALERT_TOASTS, true),
     // Granite SBAR handover notes (POST /handover).
     handover: bool(process.env.NEXT_PUBLIC_HANDOVER, true),
+    // Granite ward shift summary over the last n hours (POST /shift-summary).
+    shiftSummary: bool(process.env.NEXT_PUBLIC_SHIFT_SUMMARY, true),
     // Manual what-if scoring (POST /predict and /news2).
     whatIf: bool(process.env.NEXT_PUBLIC_WHAT_IF, true),
 };

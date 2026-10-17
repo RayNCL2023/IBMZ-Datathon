@@ -1,7 +1,7 @@
 // Server-side proxy to the LinuxONE API. Keeps API_KEY out of the browser and avoids CORS (the FastAPI
 // service has none). Only the API's own endpoints are forwarded.
 
-const ALLOWED = new Set(["health", "ward", "patient", "handover", "predict", "news2", "metrics", "fatigue", "privacy", "benchmark"]);
+const ALLOWED = new Set(["health", "ward", "patient", "handover", "shift-summary", "predict", "news2", "metrics", "fatigue", "privacy", "benchmark"]);
 
 async function forward(request: Request, { params }: { params: Promise<{ path: string[] }> }) {
     const base = process.env.LINUXONE_API_URL;
@@ -17,7 +17,7 @@ async function forward(request: Request, { params }: { params: Promise<{ path: s
     const search = new URL(request.url).search;
     const target = `${base.replace(/\/$/, "")}/${path.map(encodeURIComponent).join("/")}${search}`;
     // Granite takes ~15 s per note on 3 cores (up to 2 min for the 3B model).
-    const timeout = path[0] === "handover" ? 150_000 : 20_000;
+    const timeout = path[0] === "handover" || path[0] === "shift-summary" ? 150_000 : 20_000;
 
     try {
         const res = await fetch(target, {

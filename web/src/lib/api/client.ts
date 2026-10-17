@@ -14,6 +14,7 @@ import type {
     PredictRequest,
     PredictResponse,
     PrivacyResponse,
+    ShiftSummaryResponse,
     VitalRow,
     WardResponse,
 } from "./types";
@@ -98,6 +99,10 @@ export function createApi(source: DataSource) {
             live
                 ? call<HandoverResponse>(`/handover/${encodeURIComponent(id)}${query({ hour, privacy })}`, { method: "POST" })
                 : fake(() => mock.handover(id, hour, privacy), 1600),
+        shiftSummary: (hours: number, hour: number, privacy: string | null) =>
+            live
+                ? call<ShiftSummaryResponse>(`/shift-summary${query({ hours, hour, privacy })}`, { method: "POST" })
+                : fake(() => mock.shiftSummary(hours, hour, privacy), 1800),
         predict: (body: PredictRequest) =>
             live ? call<PredictResponse>("/predict", { method: "POST", body: JSON.stringify(body) }) : fake(() => mock.predict(body)),
         news2: (rows: VitalRow[]) =>
