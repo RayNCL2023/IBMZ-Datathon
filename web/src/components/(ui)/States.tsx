@@ -35,7 +35,7 @@ export function EmptyState({ title, children }: { title: string; children?: Reac
 
 export function Kbd({ children }: { children: React.ReactNode }) {
     return (
-        <kbd className="inline-flex items-center justify-center min-w-[1.4rem] h-[1.4rem] px-[.3rem] rounded-[.3rem] border-[1px] border-line-strong bg-sunken text-[.75rem] font-[600] text-muted font-sans">
+        <kbd className="inline-flex items-center justify-center min-w-[1.4rem] h-[1.4rem] px-[.3rem] rounded-[.3rem] border-[1px] border-line-strong bg-sunken text-[.8125rem] font-[600] text-muted font-sans">
             {children}
         </kbd>
     );

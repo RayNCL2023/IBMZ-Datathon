@@ -5,7 +5,7 @@ import type { Bed } from "@/lib/api/types";
 import { HEADS } from "@/lib/api/types";
 import { HEAD_META, HOSPITAL_NAMES } from "@/var/clinical";
 import { bedStatus, priorityLabel } from "@/lib/ward";
-import { num, pct } from "@/lib/format";
+import { num, pct, bedNo } from "@/lib/format";
 import { useReplay } from "@/contexts/ReplayContext";
 import PatientLink from "@/components/(patient)/PatientLink";
 import News2Badge from "@/components/(clinical)/News2Badge";
@@ -45,7 +45,7 @@ export default function ({ beds }: { beds: Bed[] }) {
                         <tr key={bed.patientId} data-status={bedStatus(bed)}>
                             <th scope="row">
                                 <PatientLink patientId={bed.patientId} className={s.bedLink}>
-                                    <strong>Bed {bed.bed}</strong>
+                                    <strong>Bed {bedNo(bed.bed)}</strong>
                                     <span>
                                         {bed.patientId}, {HOSPITAL_NAMES[bed.hospital] ?? bed.hospital}, {bed.discharged ? "ended" : `${bed.hour + 1} h`}
                                         {groundTruth && bed.label === 1 ? ", labelled septic" : ""}

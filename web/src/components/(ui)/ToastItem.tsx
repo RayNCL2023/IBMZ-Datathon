@@ -6,7 +6,7 @@ import type { Toast } from "@/contexts/ToastContext";
 import ToneIcon from "@/components/(ui)/ToneIcon";
 import s from "./ToastItem.module.scss";
 
-export default function ({ toast, onDismiss }: { toast: Toast; onDismiss: () => void }) {
+export default function ({ toast, onDismiss, onExpire }: { toast: Toast; onDismiss: () => void; onExpire: () => void }) {
     const [paused, setPaused] = useState(false);
     const remaining = useRef(toast.duration ?? 5000);
 
@@ -15,12 +15,12 @@ export default function ({ toast, onDismiss }: { toast: Toast; onDismiss: () => 
             return;
         }
         const started = Date.now();
-        const timer = setTimeout(onDismiss, remaining.current);
+        const timer = setTimeout(onExpire, remaining.current);
         return () => {
             clearTimeout(timer);
             remaining.current = Math.max(0, remaining.current - (Date.now() - started));
         };
-    }, [paused, onDismiss]);
+    }, [paused, onExpire]);
 
     return (
         <div

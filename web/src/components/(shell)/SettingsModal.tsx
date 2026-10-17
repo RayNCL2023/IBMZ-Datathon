@@ -90,7 +90,7 @@ function Settings({ close }: { close: () => void }) {
                                         {d.name}
                                         {active && <LuCheck size={16} className="text-accent" aria-hidden />}
                                     </span>
-                                    <span className="text-[.8rem] text-muted leading-[1.4]">{d.description}</span>
+                                    <span className="text-[.8125rem] text-muted leading-[1.4]">{d.description}</span>
                                 </button>
                             );
                         })}

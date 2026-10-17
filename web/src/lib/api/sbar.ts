@@ -1,6 +1,7 @@
 // SBAR for the mock data source: a port of api/app/handover.py facts(), plus a templated stand-in for Granite.
 import { HEAD_META, readable } from "@/var/clinical";
 import type { HandoverResponse, Head, PatientResponse, Sbar, VitalRow, Vitals } from "./types";
+import { bedNo } from "@/lib/format";
 
 const NAMES: Record<Head, string> = {
     sepsis: "sepsis",
@@ -56,7 +57,7 @@ export function buildSbar(p: PatientResponse, row: VitalRow): Sbar {
         return line;
     });
 
-    let situation = `Bed ${p.bed}, ${who}, ${now.hour + 1} hours in ICU. NEWS2 ${now.news2}${now.news2Alert ? " (alert)." : "."}`;
+    let situation = `Bed ${bedNo(p.bed)}, ${who}, ${now.hour + 1} hours in ICU. NEWS2 ${now.news2}${now.news2Alert ? " (alert)." : "."}`;
     situation += alerting.length ? ` Raised risk (not a diagnosis) of: ${alerting.map((h) => NAMES[h]).join("; ")}.` : " No model alerts.";
 
     let background = `Hospital ${p.hospital}.`;

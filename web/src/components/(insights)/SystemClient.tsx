@@ -105,7 +105,7 @@ export default function () {
                     <ol className="flex flex-col gap-[.6rem]">
                         {PATH.map(([name, detail], i) => (
                             <li key={name} className="grid grid-cols-[1.75rem_1fr] gap-[.5rem] items-start">
-                                <span className="grid place-items-center w-[1.5rem] h-[1.5rem] rounded-full bg-accent-soft text-accent-ink text-[.75rem] font-[700] font-num">{i + 1}</span>
+                                <span className="grid place-items-center w-[1.5rem] h-[1.5rem] rounded-full bg-accent-soft text-accent-ink text-[.8125rem] font-[700] font-num">{i + 1}</span>
                                 <span className="flex flex-col">
                                     <span className="text-[.9rem] font-[600] text-fg">{name}</span>
                                     <span className="text-[.85rem] text-muted">{detail}</span>

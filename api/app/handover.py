@@ -90,7 +90,7 @@ def facts(p: dict, row: dict) -> dict:
         risk_lines.append(line)
 
     abnormal = _abnormal(now["vitals"])
-    situation = f"Bed {p['bed']}, {who}, {now['hour'] + 1} hours in ICU. NEWS2 {now['news2']}" + (" (alert)." if now["news2Alert"] else ".")
+    situation = f"Bed {p['bed']:02d}, {who}, {now['hour'] + 1} hours in ICU. NEWS2 {now['news2']}" + (" (alert)." if now["news2Alert"] else ".")
     situation += f" Raised risk (not a diagnosis) of: {'; '.join(NAMES[h] for h in alerting)}." if alerting else " No model alerts."
     first = {h: a for h, a in p["firstAlert"].items() if a is not None}
     background = f"Hospital {p['hospital']}."

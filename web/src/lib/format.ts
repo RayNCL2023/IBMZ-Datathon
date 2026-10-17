@@ -27,3 +27,23 @@ export function compact(v: number) {
 }
 
 export const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+// Mock wall clock for the replay: hour 0 of every stay is admission at 07:00 on a Monday.
+const REPLAY_START_HOUR = 7;
+const DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+
+export function clockAt(hour: number) {
+    const total = REPLAY_START_HOUR + hour;
+    return {
+        day: DAYS[Math.floor(total / 24) % 7],
+        time: `${String(total % 24).padStart(2, "0")}:00`,
+    };
+}
+
+export const clockLabel = (hour: number) => {
+    const c = clockAt(hour);
+    return `${c.day} ${c.time}`;
+};
+
+// Bed numbers are always two digits (01, 02 … 12) so lists line up and read the same everywhere.
+export const bedNo = (n: number) => String(n).padStart(2, "0");

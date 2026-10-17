@@ -22,6 +22,7 @@ import RiskTimeline from "@/components/(patient)/RiskTimeline";
 import VitalsTrends from "@/components/(patient)/VitalsTrends";
 import HandoverPanel from "@/components/(patient)/HandoverPanel";
 import { useWhatIf } from "@/components/(patient)/WhatIfModal";
+import { bedNo } from "@/lib/format";
 
 // The whole patient view. Rendered as a page (/patient/[id]) and inside the side peek; `variant` only changes
 // the outer layout. Data: GET /patient/{id}?hour=&privacy= (never shows hours after the replay clock).
@@ -58,7 +59,7 @@ export default function ({ patientId, variant = "page" }: { patientId: string; v
             <section className="flex flex-col md:flex-row md:items-end justify-between gap-[1rem]">
                 <div className="flex flex-col gap-[.5rem]">
                     <h2 className={twMerge("font-[700] tracking-[-0.025em] text-fg", variant === "page" ? "text-[2rem]" : "text-[1.5rem]")}>
-                        Bed {p.bed}
+                        Bed {bedNo(p.bed)}
                     </h2>
                     <div className="flex flex-row flex-wrap items-center gap-[.35rem]">
                         <PillBase className="font-num">{p.patientId}</PillBase>

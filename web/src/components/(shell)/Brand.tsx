@@ -13,7 +13,7 @@ export default function ({ compact = false }: { compact?: boolean }) {
             {!compact && (
                 <span className="flex flex-col min-w-0">
                     <span className="text-[1rem] font-[700] tracking-[-0.02em] text-fg leading-[1.1]">{BRAND.name}</span>
-                    <span className="text-[.72rem] text-muted truncate">{BRAND.tagline}</span>
+                    <span className="text-[.8125rem] text-muted truncate">{BRAND.tagline}</span>
                 </span>
             )}
         </Link>

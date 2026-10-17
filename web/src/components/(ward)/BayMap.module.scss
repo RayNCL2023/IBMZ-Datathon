@@ -108,11 +108,12 @@
         opacity: 0;
     }
 
-    [data-tone="hot"] &::after {
+    // Only unacknowledged alarms ping; opening the bed or dismissing its toast stops it.
+    [data-tone="hot"][data-pulse] &::after {
         animation: ping 1.1s ease-out infinite;
     }
 
-    [data-tone="warm"] &::after {
+    [data-tone="warm"][data-pulse] &::after {
         animation: ping 2.2s ease-out infinite;
     }
 
@@ -162,8 +163,7 @@
         animation: none !important;
     }
 
-    [data-tone="hot"] .bed::after,
-    [data-tone="warm"] .bed::after {
+    [data-pulse] .bed::after {
         opacity: 0.3;
     }
 

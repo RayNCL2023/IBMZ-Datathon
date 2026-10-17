@@ -5,7 +5,7 @@ import type { Bed, VitalKey } from "@/lib/api/types";
 import { HEADS } from "@/lib/api/types";
 import { HEAD_META } from "@/var/clinical";
 import { bedStatus, priorityLabel, STATUS_META } from "@/lib/ward";
-import { pct } from "@/lib/format";
+import { pct, bedNo } from "@/lib/format";
 import PatientLink from "@/components/(patient)/PatientLink";
 import VitalReadout from "@/components/(clinical)/VitalReadout";
 import s from "./BedTile.module.scss";
@@ -16,9 +16,9 @@ const TILE_VITALS: VitalKey[] = ["HR", "MAP", "O2Sat"];
 export default function ({ bed }: { bed: Bed }) {
     const status = bedStatus(bed);
     return (
-        <PatientLink patientId={bed.patientId} className={s.tile} data-status={status} aria-label={`Bed ${bed.bed}, ${STATUS_META[status].label}`}>
+        <PatientLink patientId={bed.patientId} className={s.tile} data-status={status} aria-label={`Bed ${bedNo(bed.bed)}, ${STATUS_META[status].label}`}>
             <div className="flex flex-row items-start justify-between gap-[.5rem]">
-                <span className={s.bed}>{String(bed.bed).padStart(2, "0")}</span>
+                <span className={s.bed}>{bedNo(bed.bed)}</span>
                 <span className={s.status}>
                     {(status === "both" || status === "model") && <LuTriangleAlert size={14} aria-hidden />}
                     {STATUS_META[status].label}
@@ -47,7 +47,7 @@ export default function ({ bed }: { bed: Bed }) {
                 })}
             </div>
 
-            <div className="flex flex-row items-center justify-between text-[.8rem] text-muted font-num">
+            <div className="flex flex-row items-center justify-between text-[.8125rem] text-muted font-num">
                 <span>
                     NEWS2 <b className="text-fg">{bed.news2}</b>
                     {bed.news2Alert ? " alert" : ""}

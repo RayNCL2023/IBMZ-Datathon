@@ -22,7 +22,7 @@
 
 .tick {
     fill: var(--d-faint);
-    font-size: 0.72rem;
+    font-size: 0.8125rem;
     font-variant-numeric: tabular-nums;
 }
 
@@ -43,7 +43,7 @@
 
     text {
         fill: #fff;
-        font-size: 0.72rem;
+        font-size: 0.8125rem;
         font-weight: 700;
     }
 }
@@ -73,7 +73,7 @@
 
     text {
         fill: var(--d-muted);
-        font-size: 0.72rem;
+        font-size: 0.8125rem;
         font-weight: 650;
     }
 
@@ -125,7 +125,7 @@
     border: 1px solid var(--d-line);
     border-radius: var(--d-radius-control);
     box-shadow: var(--d-shadow-pop);
-    font-size: 0.8rem;
+    font-size: 0.8125rem;
     pointer-events: none;
 
     strong {
@@ -162,7 +162,7 @@
     align-items: center;
     gap: 0.4rem;
     min-height: 1.75rem;
-    font-size: 0.8rem;
+    font-size: 0.8125rem;
     font-weight: 550;
     color: var(--d-muted);
 

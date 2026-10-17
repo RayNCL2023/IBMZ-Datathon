@@ -57,3 +57,16 @@ export function filterBeds(beds: Bed[], filter: FilterKey) {
 
 // "2.9× line" reads faster than a raw probability when heads have very different alarm lines.
 export const priorityLabel = (p: number) => `${p.toFixed(1)}× line`;
+
+// A bed is red (hot) once its top risk reaches twice its alarm line; amber → red is its own alarm.
+export const HOT_RATIO = 2;
+
+// Every alarm a bed can raise, as tokens: each model head over its line, NEWS2, and the escalation to red.
+// A token appearing that wasn't there last hour is a new alarm; acknowledging a bed acknowledges its tokens.
+export type AlarmToken = Head | "news2" | "hot";
+export function alarmsOf(bed: Bed): AlarmToken[] {
+    if (bed.discharged) {
+        return [];
+    }
+    return [...alertingHeads(bed), ...(bed.news2Alert ? (["news2"] as const) : []), ...(bed.priority >= HOT_RATIO ? (["hot"] as const) : [])];
+}

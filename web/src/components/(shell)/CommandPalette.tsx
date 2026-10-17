@@ -17,6 +17,7 @@ import { usePatientPeek } from "@/components/(patient)/usePatientPeek";
 import { useWhatIf } from "@/components/(patient)/WhatIfModal";
 import { useShortcuts } from "@/components/(shell)/ShortcutsModal";
 import { Kbd } from "@/components/(ui)/States";
+import { bedNo } from "@/lib/format";
 
 type Command = { id: string; group: string; label: string; hint?: string; icon: IconType; run: () => void };
 
@@ -36,7 +37,7 @@ function Palette({ close }: { close: () => void }) {
             ...beds.map((b) => ({
                 id: `bed-${b.patientId}`,
                 group: "Beds",
-                label: `Bed ${b.bed}, ${b.patientId}`,
+                label: `Bed ${bedNo(b.bed)}, ${b.patientId}`,
                 hint: b.discharged ? "Stay ended" : `${STATUS_META[bedStatus(b)].label}, ${HEAD_META[b.topRisk].short} ${b.priority.toFixed(1)}×`,
                 icon: LuBedDouble,
                 run: () => peek(b.patientId),
@@ -120,7 +121,7 @@ function Palette({ close }: { close: () => void }) {
                     const Icon = c.icon;
                     return (
                         <li key={c.id} role="presentation" className="flex flex-col">
-                            {header && <span className="px-[.75rem] pt-[.6rem] pb-[.3rem] text-[.75rem] font-[600] text-faint">{header}</span>}
+                            {header && <span className="px-[.75rem] pt-[.6rem] pb-[.3rem] text-[.8125rem] font-[600] text-faint">{header}</span>}
                             <button
                                 id={`cmd-${c.id}`}
                                 role="option"
@@ -136,7 +137,7 @@ function Palette({ close }: { close: () => void }) {
                                 <Icon size={18} className="text-muted shrink-0" aria-hidden />
                                 <span className="flex flex-col min-w-0 flex-1">
                                     <span className="text-[.9rem] text-fg truncate">{c.label}</span>
-                                    {c.hint && <span className="text-[.8rem] text-muted truncate">{c.hint}</span>}
+                                    {c.hint && <span className="text-[.8125rem] text-muted truncate">{c.hint}</span>}
                                 </span>
                                 {i === active && <LuCornerDownLeft size={16} className="text-faint" aria-hidden />}
                             </button>

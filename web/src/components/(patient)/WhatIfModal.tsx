@@ -79,7 +79,7 @@ function WhatIf({ initial, site, close }: { initial: VitalRow; site: string | nu
         >
             <form id="what-if" onSubmit={score} className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-[.75rem]">
                 {FIELDS.map((f) => (
-                    <label key={f.key} className="flex flex-col gap-[.25rem] text-[.8rem] text-muted">
+                    <label key={f.key} className="flex flex-col gap-[.25rem] text-[.8125rem] text-muted">
                         <span>
                             {f.label} <span className="text-faint">({f.unit})</span>
                         </span>
@@ -102,14 +102,14 @@ function WhatIf({ initial, site, close }: { initial: VitalRow; site: string | nu
                     <div className="flex flex-col gap-[.6rem]">
                         <div className="flex flex-row flex-wrap items-center gap-[.5rem]">
                             <News2Badge score={n2.scores[0]} alert={n2.alert[0]} />
-                            <span className="text-[.8rem] text-muted font-num">
+                            <span className="text-[.8125rem] text-muted font-num">
                                 Scored in {result!.predict.latency_ms.toFixed(2)} ms on {api.source === "live" ? "LinuxONE" : "demo data"}
                             </span>
                         </div>
                         {HEADS.filter((h) => risks[h]).map((h) => (
                             <RiskMeter key={h} head={h} risk={risks[h]!.risk} threshold={risks[h]!.threshold} alert={risks[h]!.alert} />
                         ))}
-                        <div className="flex flex-row flex-wrap gap-[.35rem] pt-[.25rem] text-[.8rem] text-muted font-num">
+                        <div className="flex flex-row flex-wrap gap-[.35rem] pt-[.25rem] text-[.8125rem] text-muted font-num">
                             NEWS2 points:
                             {Object.entries(n2.components[0]).map(([k, v]) => (
                                 <span key={k} className={v ? "text-fg font-[600]" : ""}>

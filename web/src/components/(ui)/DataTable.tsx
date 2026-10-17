@@ -32,7 +32,7 @@ export default function <T>({
                                 key={c.key}
                                 scope="col"
                                 className={twMerge(
-                                    "py-[.5rem] px-[.6rem] text-[.8rem] font-[600] text-muted border-b-[1px] border-line whitespace-nowrap",
+                                    "py-[.5rem] px-[.6rem] text-[.8125rem] font-[600] text-muted border-b-[1px] border-line whitespace-nowrap",
                                     c.numeric ? "text-right" : "text-left",
                                     i === 0 && "pl-0",
                                 )}
@@ -67,7 +67,7 @@ export function Versus({ model, other, format }: { model: number | null | undefi
     return (
         <span className="inline-flex items-baseline gap-[.35rem] justify-end">
             <b className={twMerge("font-[650]", better && "text-ok-ink")}>{format(model)}</b>
-            <span className="text-faint text-[.8rem]">vs {format(other)}</span>
+            <span className="text-faint text-[.8125rem]">vs {format(other)}</span>
         </span>
     );
 }

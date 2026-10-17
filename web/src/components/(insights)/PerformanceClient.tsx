@@ -117,7 +117,7 @@ export default function () {
                                     cell: ([, r]) => (
                                         <span className="inline-flex items-baseline gap-[.35rem]">
                                             <b className={r.model.no_event_with_alert < r.news2.no_event_with_alert ? "text-ok-ink font-[650]" : "font-[650]"}>{pct(r.model.no_event_with_alert)}</b>
-                                            <span className="text-faint text-[.8rem]">vs {pct(r.news2.no_event_with_alert)}</span>
+                                            <span className="text-faint text-[.8125rem]">vs {pct(r.news2.no_event_with_alert)}</span>
                                         </span>
                                     ),
                                 },

@@ -6,7 +6,6 @@ import { useDesign } from "@/contexts/DesignContext";
 import { useReplay } from "@/contexts/ReplayContext";
 import { filterBeds, sortBeds, type FilterKey, type SortKey } from "@/lib/ward";
 import PageHeader from "@/components/(shell)/PageHeader";
-import WardSummary from "@/components/(ward)/WardSummary";
 import WardToolbar, { type WardLayout } from "@/components/(ward)/WardToolbar";
 import BedCard from "@/components/(ward)/BedCard";
 import BedTable from "@/components/(ward)/BedTable";
@@ -14,6 +13,7 @@ import BedTile from "@/components/(ward)/BedTile";
 import BayMap from "@/components/(ward)/BayMap";
 import Segmented from "@/components/(ui)/Segmented";
 import { storage } from "@/lib/storage";
+import { clockLabel } from "@/lib/format";
 import { EmptyState, ErrorState, Skeleton } from "@/components/(ui)/States";
 
 export type WardMode = "simple" | "analytical";
@@ -65,25 +65,21 @@ export default function () {
                         ]}
                     />
                 }
-                description={`Twelve held-out ICU stays replayed hour by hour on LinuxONE. Showing hour ${hour}${privacy ? ` with the federated sepsis model (ε = ${privacy})` : ""}.`}
+                description={`Twelve held-out ICU stays replayed hour by hour on LinuxONE. Showing ${clockLabel(hour)} (hour ${hour})${privacy ? ` with the federated sepsis model (ε = ${privacy})` : ""}.`}
             />
 
             {error && !data && <ErrorState error={error} onRetry={reload} />}
 
             {!data && !error && (
-                <div className="flex flex-col gap-[1rem]">
-                    <Skeleton className="h-[6rem]" />
-                    <div className={GRID.cards}>
-                        {Array.from({ length: 6 }, (_, i) => (
-                            <Skeleton key={i} className="h-[17rem]" />
-                        ))}
-                    </div>
+                <div className={GRID.cards}>
+                    {Array.from({ length: 6 }, (_, i) => (
+                        <Skeleton key={i} className="h-[17rem]" />
+                    ))}
                 </div>
             )}
 
             {data && (
                 <>
-                    <WardSummary beds={beds} />
                     <WardToolbar mode={mode} beds={beds} filter={filter} setFilter={setFilter} sort={sort} setSort={setSort} layout={layout} setLayout={setLayout} />
                     {mode === "simple" && <BayMap beds={beds} filter={filter} sort={sort} />}
                     {mode === "analytical" && !shown.length && (

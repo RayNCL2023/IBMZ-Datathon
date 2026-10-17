@@ -17,7 +17,7 @@ export default function ({ k, value, size = "md", className }: { k: VitalKey; va
     const abnormal = isAbnormal(k, value);
     return (
         <div className={twMerge("flex flex-col min-w-0", className)}>
-            <span className="text-[.75rem] text-muted whitespace-nowrap">{meta.label}</span>
+            <span className="text-[.8125rem] text-muted whitespace-nowrap">{meta.label}</span>
             <span className="flex flex-row items-baseline gap-[.25rem] font-num">
                 <span
                     className={twMerge(
@@ -29,10 +29,10 @@ export default function ({ k, value, size = "md", className }: { k: VitalKey; va
                 >
                     {num(value, meta.digits)}
                 </span>
-                <span className="text-[.75rem] text-faint">{meta.unit}</span>
+                <span className="text-[.8125rem] text-faint">{meta.unit}</span>
                 {abnormal && <span className="sr-only">outside normal range</span>}
                 {abnormal && (
-                    <span aria-hidden className="text-[.7rem] text-danger-ink font-[700]">
+                    <span aria-hidden className="text-[.8125rem] text-danger-ink font-[700]">
                         !
                     </span>
                 )}

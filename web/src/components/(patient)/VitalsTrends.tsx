@@ -100,7 +100,7 @@ export default function ({ patient: p }: { patient: PatientResponse }) {
                     <table className="w-full text-[.85rem] border-collapse font-num">
                         <caption className="sr-only">Observations for the last 24 hours, newest first</caption>
                         <thead>
-                            <tr className="text-muted text-[.8rem]">
+                            <tr className="text-muted text-[.8125rem]">
                                 <th className="text-left font-[600] py-[.4rem] pr-[1rem]">Hour</th>
                                 <th className="text-right font-[600] py-[.4rem] px-[.5rem]">NEWS2</th>
                                 {TABLE_KEYS.map((k) => (

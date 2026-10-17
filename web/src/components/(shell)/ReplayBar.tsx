@@ -8,6 +8,7 @@ import { useApi } from "@/lib/api/useApi";
 import { useDesign } from "@/contexts/DesignContext";
 import IconButton from "@/components/(buttons)/IconButton";
 import Segmented from "@/components/(ui)/Segmented";
+import { clockLabel } from "@/lib/format";
 import s from "./ReplayBar.module.scss";
 
 // The replay clock: every screen reads the same hour. Also picks the sepsis model (central or federated
@@ -41,8 +42,8 @@ export default function ({ className }: { className?: string }) {
             <label className="flex flex-row items-center gap-[.75rem] flex-1 min-w-[12rem]">
                 <span className={s.hour}>
                     <span className="sr-only">Replay hour</span>
-                    <b>Hour {r.hour}</b>
-                    <span>of {r.maxHour}</span>
+                    <b>{clockLabel(r.hour)}</b>
+                    <span>Hour {r.hour}</span>
                 </span>
                 <input
                     type="range"
@@ -51,6 +52,7 @@ export default function ({ className }: { className?: string }) {
                     value={r.hour}
                     onChange={(e) => r.setHour(Number(e.target.value))}
                     className={s.range}
+                    aria-valuetext={`${clockLabel(r.hour)}, hour ${r.hour} of ${r.maxHour}`}
                     style={{ "--progress": `${(r.hour / Math.max(r.maxHour, 1)) * 100}%` } as React.CSSProperties}
                 />
                 <span className={s.loading} data-on={loading || undefined} aria-hidden />

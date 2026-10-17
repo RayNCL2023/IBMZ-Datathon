@@ -32,7 +32,7 @@ export default function ({ patient: p }: { patient: PatientResponse }) {
             <div className="overflow-x-auto">
                 <table className="w-full text-[.875rem] border-collapse">
                     <thead>
-                        <tr className="text-left text-muted text-[.8rem]">
+                        <tr className="text-left text-muted text-[.8125rem]">
                             <th className="font-[600] py-[.4rem] pr-[1rem]">Risk</th>
                             <th className="font-[600] py-[.4rem] pr-[1rem]">First model alarm</th>
                             <th className="font-[600] py-[.4rem] pr-[1rem]">First NEWS2 alarm</th>

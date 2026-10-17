@@ -117,7 +117,7 @@ export default function ({ patientId, hour }: { patientId: string; hour: number 
                     {narrativeOk && (
                         <figure className="flex flex-col gap-[.5rem] p-[1rem] rounded-card bg-accent-soft">
                             <blockquote className="text-[1rem] leading-[1.55] text-fg">{note.narrative}</blockquote>
-                            <figcaption className="flex flex-row flex-wrap items-center gap-[.5rem] text-[.8rem] text-muted">
+                            <figcaption className="flex flex-row flex-wrap items-center gap-[.5rem] text-[.8125rem] text-muted">
                                 <StatusPill tone="success">Checked against the facts</StatusPill>
                                 Granite 4.0{note.generationSeconds ? `, ${note.generationSeconds.toFixed(1)} s` : ""}
                                 {note.cached ? ", cached" : ""}
