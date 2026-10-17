@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
 import { LuMoon, LuSearch, LuSettings2, LuSun } from "react-icons/lu";
 import { useDesign } from "@/contexts/DesignContext";
@@ -34,8 +35,14 @@ export function SearchButton({ wide = true }: { wide?: boolean }) {
 export function ThemeToggle() {
     const { config } = useDesign();
     const { resolvedTheme, setTheme } = useTheme();
+    // The theme is only known in the browser; render a same-size placeholder on the server to avoid a mismatch.
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => setMounted(true), []);
     if (config.forcedMode) {
         return null;
+    }
+    if (!mounted) {
+        return <span aria-hidden className="w-[var(--d-control)] h-[var(--d-control)] shrink-0" />;
     }
     const dark = resolvedTheme === "dark";
     return (
