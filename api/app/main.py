@@ -1,5 +1,6 @@
 """Sepsis early-warning API (runs on LinuxONE). Contract: see DATATHON_GUIDE.md §7."""
 
+import json
 import os
 import time
 
@@ -113,6 +114,15 @@ def privacy():
         "local_only": report.get("local_only", {}),
         "hospitals": model.privacy_report.get("hospitals", {}),
     }
+
+
+@app.get("/benchmark", dependencies=[Depends(require_key)])
+def benchmark():
+    """Same heads on NNPA vs CPU (api/bench.py), measured on this LinuxONE VM: latency and rows/s per batch size."""
+    path = os.path.join(risk_model.MODEL_DIR, "benchmark.json")
+    if not os.path.exists(path):
+        raise HTTPException(status_code=404, detail="no benchmark yet; run api/bench.py")
+    return json.load(open(path))
 
 
 @app.get("/fatigue", dependencies=[Depends(require_key)])

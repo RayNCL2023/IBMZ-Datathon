@@ -7,6 +7,7 @@ services:
     environment:
       API_KEY: ${API_KEY:-}
       THRESHOLD: ${THRESHOLD:-}  # empty = use metrics.json threshold
+      TREE_FORMAT: ${TREE_FORMAT:-}  # empty = auto (NNPA); compress_trees = CPU
       MODEL_VERSION: ${MODEL_VERSION:-dev}
     volumes:
       - ./model:/app/model:ro
