@@ -1,6 +1,5 @@
 """Sepsis early-warning API (runs on LinuxONE). Contract: see DATATHON_GUIDE.md §7."""
 
-import hmac
 import json
 import os
 import time
@@ -8,12 +7,11 @@ import time
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
-from . import features, handover
+from . import features, handover, keys
 from . import model as risk_model
 from . import news2
 from .ward import VITALS, Ward
 
-API_KEY = os.getenv("API_KEY", "")
 MODEL_VERSION = os.getenv("MODEL_VERSION", "dev")
 
 # No public /docs or /openapi.json: the API contract lives in the repo, not on the open internet.
@@ -23,9 +21,8 @@ ward = Ward()
 
 
 def require_key(x_api_key: str = Header(default="")):
-    if not API_KEY:
-        return
-    if not hmac.compare_digest(x_api_key.encode(), API_KEY.encode()):
+    """Every endpoint except /health. Keys live in SQLite (app/keys.py); no keys means nobody gets in."""
+    if not keys.verify(x_api_key):
         raise HTTPException(status_code=401, detail="invalid api key")
 
 

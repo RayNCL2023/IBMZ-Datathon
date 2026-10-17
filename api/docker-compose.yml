@@ -5,13 +5,13 @@ services:
     expose: ["8000"]
     restart: unless-stopped
     environment:
-      API_KEY: ${API_KEY:-}
       THRESHOLD: ${THRESHOLD:-}  # empty = use metrics.json threshold
       TREE_FORMAT: ${TREE_FORMAT:-}  # empty = auto (NNPA); compress_trees = CPU
       MODEL_VERSION: ${MODEL_VERSION:-dev}
       GRANITE_URL: http://granite:8080
     volumes:
       - ./model:/app/model:ro
+      - ./keys:/app/keys  # SQLite key store (hashes only); not in git, not in the image
       - ${DATA_DIR:-/home/linux1/data/training}:/data:ro
 
   # HTTPS (Let's Encrypt) in front of the API; http:// redirects to https://.

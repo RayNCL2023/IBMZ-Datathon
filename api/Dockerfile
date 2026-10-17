@@ -12,7 +12,7 @@ RUN apt-get update \
 
 # snapml ships s390x wheels; --no-deps keeps pip from rebuilding numpy & co.
 RUN pip install --break-system-packages --no-cache-dir --no-deps snapml \
- && pip install --break-system-packages --no-cache-dir fastapi uvicorn
+ && pip install --break-system-packages --no-cache-dir fastapi uvicorn cuid2
 
 WORKDIR /srv
 COPY app ./app

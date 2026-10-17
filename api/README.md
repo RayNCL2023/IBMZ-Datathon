@@ -43,19 +43,34 @@ cd ml && uv venv -p 3.12 .venv && uv pip install -p .venv -r requirements.txt
 ## Deploy (from the repo root on your laptop)
 
 ```bash
-rsync -az --delete --exclude model/ --exclude .env api/ l1:~/mfc/api/ && rsync -az api/model/ l1:~/mfc/api/model/
+rsync -az --delete --exclude model/ --exclude .env --exclude keys/ api/ l1:~/mfc/api/ && rsync -az api/model/ l1:~/mfc/api/model/
 ssh l1 'cd ~/mfc/api && sudo docker compose up -d --build'
 curl -s https://148-100-78-203.sslip.io/health
 ```
 
-`API_KEY` lives in `~/mfc/api/.env` on the VM. Don't commit it.
+Never drop `--exclude keys/`: `--delete` would wipe the key database.
+
+## API keys
+
+Keys live in SQLite at `~/mfc/api/keys/keys.db` on the VM (mounted into the container, never in git or the image). A key looks like `<id>.<code>`:
+- `id` is a cuid2.
+- `code` is 256 random bits. Only its SHA-256 hash is stored, so a leaked database gives nobody a working key.
+
+```bash
+ssh l1 'cd ~/mfc/api && sudo docker compose exec -T api python3 -m app.keys create "alice"'   # prints the key once
+ssh l1 'cd ~/mfc/api && sudo docker compose exec -T api python3 -m app.keys list'
+ssh l1 'cd ~/mfc/api && sudo docker compose exec -T api python3 -m app.keys revoke <id>'
+```
+
+It fails closed: with no keys, every endpoint except `/health` answers 401.
 
 ## Security
 
 - **HTTPS only.** Caddy (`caddy/Caddyfile`) holds a Let's Encrypt certificate for `148-100-78-203.sslip.io` and renews it itself. Every `http://` request (hostname or bare IP) gets a 308 redirect to `https://`, so POSTs keep their method, and responses carry HSTS. On s390x the TLS crypto runs on CPACF.
 - **The API has no published port.** Only Caddy reaches `api:8000`, and Granite is reachable only from the API.
-- **Every endpoint except `/health` needs `x-api-key`.** The comparison is constant-time. `/docs`, `/redoc` and `/openapi.json` are turned off.
-- **One shared key, no per-user accounts and no rate limiting.** Fine for a demo of de-identified research data, not for a real trust. Real deployments would need SSO plus per-user audit.
+- **Every endpoint except `/health` needs `x-api-key`**, checked against the SQLite key store (hashed, constant-time comparison, revocable, `last_used_at` tracked). `/docs`, `/redoc` and `/openapi.json` are turned off.
+- **Port 8000 is closed** in iptables (rule removed and saved), and nothing listens on it.
+- **No rate limiting or per-user roles.** Fine for a demo of de-identified research data, not for a real trust. Real deployments would need SSO plus per-user audit.
 
 ## NNPA vs CPU benchmark (`bench.py`, served at `GET /benchmark`)
 
