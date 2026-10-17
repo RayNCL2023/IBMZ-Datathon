@@ -60,4 +60,4 @@ Sepsis head on the 3-core LinuxONE VM. All backends match the XGBoost export wit
 | Snap ML, CPU (`compress_trees`) | 0.013 ms | 0.043 ms | 5.8 ms | 1.73M rows/s |
 | XGBoost 2.0.3, CPU | 0.212 ms | 0.208 ms | 12.1 ms | 0.82M rows/s |
 
-For these heads (~150-400 depth-6 trees) the NNPA path is slower than Snap ML's CPU path. It doesn't offload the CPU either: 85 ms of CPU per 10k rows vs 19 ms. Set `TREE_FORMAT=compress_trees` in `.env` to serve on the CPU.
+For these heads (100-575 depth-6 trees) the NNPA path is slower than Snap ML's CPU path. It doesn't offload the CPU either: 85 ms of CPU per 10k rows vs 19 ms. Set `TREE_FORMAT=compress_trees` in `.env` to serve on the CPU.
