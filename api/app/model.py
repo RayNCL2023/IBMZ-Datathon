@@ -56,7 +56,10 @@ class StubModel:
     metrics = {}
     thresholds = {"sepsis": float(os.getenv("THRESHOLD") or 0.5)}
 
-    def score(self, histories: list[np.ndarray], sites: list[str | None]) -> list[dict]:
+    privacy = {}
+    privacy_report = {}
+
+    def score(self, histories: list[np.ndarray], sites: list[str | None], privacy: str | None = None) -> list[dict]:
         F = _last_rows(histories)
         out = []
         threshold = self.thresholds["sepsis"]
@@ -73,6 +76,7 @@ class SnapModel:
     """One Snap ML booster per risk head (heads/<name>.json), sharing features and imputation."""
 
     backend = "snapml"
+    privacy_report = {}
 
     def __init__(self):
         from snapml import BoostingMachineClassifier
@@ -99,49 +103,77 @@ class SnapModel:
         if not self.heads:
             raise ValueError("no heads/*.json in MODEL_DIR")
         self.tree_format = str(next(iter(self.heads.values())).booster_.optimized_tree_format_)
+        try:
+            self._load_privacy_variants(BoostingMachineClassifier)
+        except Exception as e:  # the privacy slider is optional; never take the main heads down with it
+            print(f"!! privacy variants not loaded: {e}", file=sys.stderr)
+            self.privacy = {}
 
         groups = {}
         for i, name in enumerate(names):
             groups.setdefault(_group(name), []).append(i)
         self.groups = {g: idx for g, idx in groups.items() if g not in NOT_DRIVERS}
 
-    def _calibrator(self, head: str, site: str | None) -> dict:
-        per_site = self.calibration[head]
-        return per_site.get(site or "global", per_site["global"])
+    def _load_privacy_variants(self, BoostingMachineClassifier):
+        """Federated sepsis models (fed/coordinator.py), one per privacy budget, each with the hospitals' own
+        calibrations and the federation's shared imputation. Selected per request with privacy=<epsilon>."""
+        self.privacy = {}
+        fed = os.path.join(MODEL_DIR, "fed")
+        if not os.path.isdir(fed):
+            return
 
-    def score(self, histories: list[np.ndarray], sites: list[str | None]) -> list[dict]:
-        """Risks are calibrated probabilities for the patient's site; alerts use that site's alarm threshold."""
-        F = _last_rows(histories)
-        F = np.where(np.isnan(F), self.impute, F).astype(np.float32)
+        impute = np.array(json.load(open(os.path.join(fed, "impute.json"))), dtype=np.float32)
+        self.privacy_report = json.load(open(os.path.join(fed, "report.json")))
+        for path in sorted(glob.glob(os.path.join(fed, "sepsis_eps-*.json"))):
+            if path.endswith(".calibration.json"):
+                continue
+            key = os.path.basename(path)[len("sepsis_eps-") : -5]
+            booster = BoostingMachineClassifier()
+            booster.import_model(path, input_type="xgb_json", tree_format="auto")
+            booster.set_params(n_jobs=os.cpu_count())
+            calibration = json.load(open(path[:-5] + ".calibration.json"))
+            self.privacy[key] = (booster, impute, calibration)
 
-        # Drivers by occlusion: reset one clinical variable (all its features) to the population value
-        # and see how far each risk falls. The real rows and all occluded copies go to the
-        # accelerator in one batch per head.
+    def _score_head(self, booster, F: np.ndarray, impute: np.ndarray, calibration: dict, sites: list) -> list[dict]:
+        """Calibrated risk, alert and drivers for one head. Drivers by occlusion: reset one clinical variable
+        (all its features) to the population value and see how far the risk falls. The real rows and all
+        occluded copies go to the accelerator in one batch."""
+        F = np.where(np.isnan(F), impute, F).astype(np.float32)
         names = list(self.groups)
         occluded = np.repeat(F, len(names), axis=0)
         for j, g in enumerate(names):
-            occluded[j :: len(names), self.groups[g]] = self.impute[self.groups[g]]
-        batch = np.vstack([F, occluded])
+            occluded[j :: len(names), self.groups[g]] = impute[self.groups[g]]
+        raw = booster.predict_proba(np.vstack([F, occluded]))[:, 1]
 
+        fallback = calibration.get("global") or calibration[sorted(calibration)[0]]
+        out = []
+        for i in range(len(F)):
+            cal = calibration.get(sites[i] or "global", fallback)
+            risk = float(np.interp(raw[i], cal["x"], cal["y"]))
+            occ = np.interp(raw[len(F) + i * len(names) : len(F) + (i + 1) * len(names)], cal["x"], cal["y"])
+            drop = risk - occ
+            top = np.argsort(-drop)[:3]
+            out.append({
+                "risk": round(risk, 4),
+                "alert": bool(raw[i] >= cal["raw_threshold"]),
+                "threshold": cal["threshold"],
+                "drivers": [
+                    {"feature": names[j], "contribution": round(float(drop[j]), 4)} for j in top if drop[j] > 0
+                ],
+            })
+        return out
+
+    def score(self, histories: list[np.ndarray], sites: list[str | None], privacy: str | None = None) -> list[dict]:
+        """Risks are calibrated probabilities for the patient's site; alerts use that site's alarm threshold.
+        privacy=<epsilon> swaps the sepsis head for the federated model trained with that privacy budget."""
+        F = _last_rows(histories)
         out = [{} for _ in range(len(F))]
         for head, booster in self.heads.items():
-            raw = booster.predict_proba(batch)[:, 1]
-            for i in range(len(F)):
-                cal = self._calibrator(head, sites[i])
-                risk = float(np.interp(raw[i], cal["x"], cal["y"]))
-                occ = np.interp(raw[len(F) + i * len(names) : len(F) + (i + 1) * len(names)], cal["x"], cal["y"])
-                drop = risk - occ
-                top = np.argsort(-drop)[:3]
-                out[i][head] = {
-                    "risk": round(risk, 4),
-                    "alert": bool(raw[i] >= cal["raw_threshold"]),
-                    "threshold": cal["threshold"],
-                    "drivers": [
-                        {"feature": names[j], "contribution": round(float(drop[j]), 4)}
-                        for j in top
-                        if drop[j] > 0
-                    ],
-                }
+            impute, calibration = self.impute, self.calibration[head]
+            if head == "sepsis" and privacy in self.privacy:
+                booster, impute, calibration = self.privacy[privacy]
+            for i, r in enumerate(self._score_head(booster, F, impute, calibration, sites)):
+                out[i][head] = r
         return out
 
 
