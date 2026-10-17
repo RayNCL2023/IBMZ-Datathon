@@ -6,6 +6,7 @@ import time
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
+from . import features
 from . import model as risk_model
 from . import news2
 from .ward import Ward
@@ -26,16 +27,19 @@ def require_key(x_api_key: str = Header(default="")):
 
 
 class Rows(BaseModel):
-    rows: list[dict[str, float | None]]
+    rows: list[dict[str, float | None]] = []
+    # Optional: one list of hourly rows per patient, oldest first, scored at the last hour.
+    # Without history, each row is scored as a patient's first hour (trend features are empty).
+    history: list[list[dict[str, float | None]]] | None = None
 
 
-def _score(rows: list[dict]) -> dict:
-    probs = model.predict(rows)
+def _score(histories: list) -> dict:
+    probs, drivers = model.score(histories)
     return {
         "probabilities": probs,
-        "alert": [p >= risk_model.THRESHOLD for p in probs],
-        "threshold": risk_model.THRESHOLD,
-        "drivers": [model.drivers(r) for r in rows],
+        "alert": [p >= model.threshold for p in probs],
+        "threshold": model.threshold,
+        "drivers": drivers,
     }
 
 
@@ -47,6 +51,8 @@ def health():
         "tree_format": model.tree_format,
         "n_features": len(model.features),
         "model_version": MODEL_VERSION,
+        "threshold": model.threshold,
+        "test_auroc": model.metrics.get("test", {}).get("AB", {}).get("model", {}).get("auroc"),
         "ward_beds": len(ward.patients),
     }
 
@@ -54,7 +60,13 @@ def health():
 @app.post("/predict", dependencies=[Depends(require_key)])
 def predict(body: Rows):
     started = time.perf_counter()
-    out = _score(body.rows)
+    if not body.rows and not body.history:
+        raise HTTPException(status_code=400, detail="send rows or history")
+
+    histories = [features.rows_to_raw(h) for h in body.history] if body.history else [
+        features.rows_to_raw([r]) for r in body.rows
+    ]
+    out = _score(histories)
     out["latency_ms"] = round((time.perf_counter() - started) * 1000, 3)
     return out
 
@@ -69,6 +81,12 @@ def news2_scores(body: Rows):
     }
 
 
+@app.get("/metrics", dependencies=[Depends(require_key)])
+def metrics():
+    """Held-out evaluation vs NEWS2, per hospital (from ml/train.py)."""
+    return model.metrics
+
+
 @app.get("/ward", dependencies=[Depends(require_key)])
 def ward_at(hour: int = 0):
     if hour < 0:
@@ -78,7 +96,7 @@ def ward_at(hour: int = 0):
     if not beds:
         return {"hour": hour, "beds": []}
 
-    scored = _score([b["row"] for b in beds])
+    scored = _score([b.pop("history") for b in beds])
     for i, bed in enumerate(beds):
         row = bed.pop("row")
         bed["news2"], bed["news2Alert"] = news2.score(row)
