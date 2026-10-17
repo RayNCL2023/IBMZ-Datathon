@@ -1,8 +1,8 @@
 services:
   api:
     build: .
-    ports:
-      - "8000:8000"
+    # No published port: only Caddy (HTTPS) reaches the API.
+    expose: ["8000"]
     restart: unless-stopped
     environment:
       API_KEY: ${API_KEY:-}
@@ -14,6 +14,21 @@ services:
       - ./model:/app/model:ro
       - ${DATA_DIR:-/home/linux1/data/training}:/data:ro
 
+  # HTTPS (Let's Encrypt) in front of the API; http:// redirects to https://.
+  caddy:
+    image: caddy:2.10.2
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      PUBLIC_HOST: ${PUBLIC_HOST:-148-100-78-203.sslip.io}
+    volumes:
+      - ./caddy:/etc/caddy:ro  # whole dir: a single-file mount keeps the old file after rsync
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on: [api]
+
   # Granite LLM for SBAR handover notes. No published port: only the API can reach it.
   granite:
     build: ./granite
@@ -23,3 +38,7 @@ services:
       GRANITE_MODEL: /models/${GRANITE_FILE:-granite-4.0-h-350m-bf16-be.gguf}
     volumes:
       - ${GRANITE_DIR:-/home/linux1/granite}:/models:ro
+
+volumes:
+  caddy_data:    # certificates; keep it so restarts don't hit Let's Encrypt rate limits
+  caddy_config:

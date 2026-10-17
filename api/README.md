@@ -45,10 +45,17 @@ cd ml && uv venv -p 3.12 .venv && uv pip install -p .venv -r requirements.txt
 ```bash
 rsync -az --delete --exclude model/ --exclude .env api/ l1:~/mfc/api/ && rsync -az api/model/ l1:~/mfc/api/model/
 ssh l1 'cd ~/mfc/api && sudo docker compose up -d --build'
-curl -s http://148.100.78.203:8000/health
+curl -s https://148-100-78-203.sslip.io/health
 ```
 
 `API_KEY` lives in `~/mfc/api/.env` on the VM. Don't commit it.
+
+## Security
+
+- **HTTPS only.** Caddy (`caddy/Caddyfile`) holds a Let's Encrypt certificate for `148-100-78-203.sslip.io` and renews it itself. Every `http://` request (hostname or bare IP) gets a 308 redirect to `https://`, so POSTs keep their method, and responses carry HSTS. On s390x the TLS crypto runs on CPACF.
+- **The API has no published port.** Only Caddy reaches `api:8000`, and Granite is reachable only from the API.
+- **Every endpoint except `/health` needs `x-api-key`.** The comparison is constant-time. `/docs`, `/redoc` and `/openapi.json` are turned off.
+- **One shared key, no per-user accounts and no rate limiting.** Fine for a demo of de-identified research data, not for a real trust. Real deployments would need SSO plus per-user audit.
 
 ## NNPA vs CPU benchmark (`bench.py`, served at `GET /benchmark`)
 

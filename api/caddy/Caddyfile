@@ -1,0 +1,17 @@
+# HTTPS front door for the API. Caddy gets and renews a Let's Encrypt certificate for PUBLIC_HOST and
+# redirects every http:// request to https:// (308, so POSTs keep their method and body).
+# TLS on s390x runs on CPACF, the CPU's built-in crypto accelerator.
+{$PUBLIC_HOST} {
+	encode gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options nosniff
+		-Server
+	}
+	reverse_proxy api:8000
+}
+
+# The bare IP (http or https without a matching name) goes to the HTTPS hostname.
+http://148.100.78.203 {
+	redir https://{$PUBLIC_HOST}{uri} 308
+}
