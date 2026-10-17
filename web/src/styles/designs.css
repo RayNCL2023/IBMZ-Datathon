@@ -7,7 +7,7 @@
 
 :root {
     /* Shared across designs */
-    --d-font-num: var(--font-geist-sans), system-ui, sans-serif;
+    --d-font-num: var(--font-instrument-sans), system-ui, sans-serif;
     --d-control: 2.25rem;
 
     --h-sepsis: #2a78d6;

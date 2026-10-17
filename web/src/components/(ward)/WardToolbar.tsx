@@ -7,6 +7,7 @@ import { HEAD_META } from "@/var/clinical";
 import { filterBeds, type FilterKey, type SortKey } from "@/lib/ward";
 import Segmented from "@/components/(ui)/Segmented";
 import { useDesign } from "@/contexts/DesignContext";
+import type { WardMode } from "@/components/(ward)/WardClient";
 
 export type WardLayout = "cards" | "table" | "tiles";
 
@@ -27,6 +28,7 @@ function Chip({ active, onClick, color, children }: { active: boolean; onClick: 
 }
 
 export default function ({
+    mode,
     beds,
     filter,
     setFilter,
@@ -35,6 +37,7 @@ export default function ({
     layout,
     setLayout,
 }: {
+    mode: WardMode;
     beds: Bed[];
     filter: FilterKey;
     setFilter: (f: FilterKey) => void;
@@ -71,7 +74,7 @@ export default function ({
                         { value: "bed", label: "Bed" },
                     ]}
                 />
-                {advanced && (
+                {advanced && mode === "analytical" && (
                 <Segmented
                     label="Layout"
                     value={layout}

@@ -5,9 +5,9 @@ import "./globals.css";
 import "./animations.scss";
 
 // =====================
-// Geist Font (By Vercel)
+// Instrument Sans
 // =====================
-import { GeistSans } from "@/fonts/Geist/GeistSans";
+import { InstrumentSans } from "@/fonts/InstrumentSans/InstrumentSans";
 
 // =====================
 // Metadata Export
@@ -30,11 +30,11 @@ const designScript = `try{var d=${flags.designSwitcher ? `localStorage.getItem($
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en-GB" data-design={flags.design} className={GeistSans.variable} suppressHydrationWarning>
+        <html lang="en-GB" data-design={flags.design} className={InstrumentSans.variable} suppressHydrationWarning>
             <head>
                 <script dangerouslySetInnerHTML={{ __html: designScript }} />
             </head>
-            <Backbone className={GeistSans.className}>
+            <Backbone className={InstrumentSans.className}>
                 <Providers>{children}</Providers>
             </Backbone>
         </html>

@@ -26,7 +26,7 @@ export function SearchButton({ wide = true }: { wide?: boolean }) {
             className="flex flex-row items-center gap-[.5rem] w-full min-h-[var(--d-control)] px-[.6rem] rounded-control border-[1px] border-line bg-surface text-[.85rem] text-faint hover:text-fg"
         >
             <LuSearch size={16} aria-hidden />
-            <span className="flex-1 text-left">Search beds, pages…</span>
+            <span className="flex-1 min-w-0 text-left whitespace-nowrap overflow-hidden text-ellipsis">Search beds, pages…</span>
             <Kbd>Ctrl</Kbd>
             <Kbd>K</Kbd>
         </button>
