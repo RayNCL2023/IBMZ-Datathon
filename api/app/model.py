@@ -24,6 +24,8 @@ import numpy as np
 from . import features, news2
 
 MODEL_DIR = os.getenv("MODEL_DIR", "/app/model")
+# auto = NNPA (zdnn_tensors) when present; compress_trees = CPU, which api/bench.py measured ~5x faster for these heads.
+TREE_FORMAT = os.getenv("TREE_FORMAT") or "auto"
 
 # Features that describe the admission rather than the patient's physiology are never shown as drivers.
 NOT_DRIVERS = {"ICULOS", "HospAdmTime", "Unit1", "Unit2", "n_measured"}
@@ -104,7 +106,7 @@ class SnapModel:
         for path in sorted(glob.glob(os.path.join(MODEL_DIR, "heads", "*.json"))):
             head = os.path.basename(path)[:-5]
             booster = BoostingMachineClassifier()
-            booster.import_model(path, input_type="xgb_json", tree_format="auto")
+            booster.import_model(path, input_type="xgb_json", tree_format=TREE_FORMAT)
             booster.set_params(n_jobs=os.cpu_count())
             self.heads[head] = booster
             self.thresholds[head] = float(self.calibration[head]["global"]["threshold"])
@@ -137,7 +139,7 @@ class SnapModel:
                 continue
             key = os.path.basename(path)[len("sepsis_eps-") : -5]
             booster = BoostingMachineClassifier()
-            booster.import_model(path, input_type="xgb_json", tree_format="auto")
+            booster.import_model(path, input_type="xgb_json", tree_format=TREE_FORMAT)
             booster.set_params(n_jobs=os.cpu_count())
             calibration = json.load(open(path[:-5] + ".calibration.json"))
             self.privacy[key] = (booster, impute, calibration)
