@@ -1,0 +1,231 @@
+/* =====================================================================================================
+   Three designs, one token contract. <html data-design="ward|clinical|night" data-theme="light|dark">.
+   Selected by NEXT_PUBLIC_DESIGN (and the runtime switcher when NEXT_PUBLIC_DESIGN_SWITCHER is on).
+   Risk-head colours are a fixed, colour-vision-validated categorical order; status colours are reserved
+   and always ship with an icon + label.
+   ===================================================================================================== */
+
+:root {
+    /* Shared across designs */
+    --d-font-num: var(--font-geist-sans), system-ui, sans-serif;
+    --d-control: 2.25rem;
+
+    --h-sepsis: #2a78d6;
+    --h-hypotension: #eb6834;
+    --h-aki: #1baf7a;
+    --h-resp: #eda100;
+    --h-mortality: #e87ba4;
+}
+
+html[data-theme="dark"] {
+    --h-sepsis: #3987e5;
+    --h-hypotension: #d95926;
+    --h-aki: #199e70;
+    --h-resp: #c98500;
+    --h-mortality: #d55181;
+}
+
+@media (width < 768px) {
+    :root {
+        --d-control: 2.75rem; /* 44px touch targets */
+    }
+}
+
+/* ----------------------------------------------------------------------------------------------------
+   Ward: a quiet, document-like workspace. White paper, soft grey sidebar, ink text, one clear blue.
+   ---------------------------------------------------------------------------------------------------- */
+:root,
+html[data-design="ward"] {
+    --d-bg: #ffffff;
+    --d-panel: #f8f8f7;
+    --d-surface: #ffffff;
+    --d-sunken: #f6f6f4;
+    --d-hover: rgba(47, 52, 55, 0.06);
+    --d-line: #ececea;
+    --d-line-strong: #dcdcd9;
+    --d-fg: #2f3437;
+    --d-muted: #686c70;
+    --d-faint: #9a9b98;
+    --d-accent: #1f6fd1;
+    --d-accent-strong: #195db0;
+    --d-accent-fg: #ffffff;
+    --d-accent-soft: #e9f1fc;
+    --d-accent-ink: #195db0;
+
+    --d-danger: #d03b3b;
+    --d-danger-ink: #b42318;
+    --d-danger-soft: #fdeeed;
+    --d-danger-line: #f4c7c3;
+    --d-warn: #e5a00d;
+    --d-warn-ink: #8a5300;
+    --d-warn-soft: #fff5de;
+    --d-ok: #12a150;
+    --d-ok-ink: #0b6b2f;
+    --d-ok-soft: #e7f6ed;
+
+    --d-focus: #1f6fd1;
+    --d-scrim: rgba(15, 15, 15, 0.32);
+    --d-shadow-sm: 0 1px 2px rgba(15, 15, 15, 0.08);
+    --d-shadow-pop: 0 0 0 1px rgba(15, 15, 15, 0.04), 0 12px 32px -8px rgba(15, 15, 15, 0.18);
+    --d-radius: 0.6rem;
+    --d-radius-control: 0.4rem;
+}
+
+html[data-design="ward"][data-theme="dark"],
+html:not([data-design])[data-theme="dark"] {
+    --d-bg: #191919;
+    --d-panel: #202020;
+    --d-surface: #1f1f1f;
+    --d-sunken: #252525;
+    --d-hover: rgba(255, 255, 255, 0.055);
+    --d-line: #2e2e2e;
+    --d-line-strong: #3b3b3b;
+    --d-fg: #ebebea;
+    --d-muted: #a5a5a2;
+    --d-faint: #7c7c79;
+    --d-accent: #4c95ea;
+    --d-accent-strong: #6aa8ef;
+    --d-accent-fg: #0c1a2b;
+    --d-accent-soft: rgba(76, 149, 234, 0.16);
+    --d-accent-ink: #8dbdf4;
+
+    --d-danger: #e05252;
+    --d-danger-ink: #ff958c;
+    --d-danger-soft: rgba(224, 82, 82, 0.15);
+    --d-danger-line: rgba(224, 82, 82, 0.4);
+    --d-warn: #f0b429;
+    --d-warn-ink: #f5c858;
+    --d-warn-soft: rgba(240, 180, 41, 0.14);
+    --d-ok: #2fbf6c;
+    --d-ok-ink: #6bd99a;
+    --d-ok-soft: rgba(47, 191, 108, 0.15);
+
+    --d-focus: #6aa8ef;
+    --d-scrim: rgba(0, 0, 0, 0.55);
+    --d-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+    --d-shadow-pop: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 16px 40px -8px rgba(0, 0, 0, 0.6);
+}
+
+/* ----------------------------------------------------------------------------------------------------
+   Clinical: accessibility first for shared ward PCs. Pale blue-grey page, white panels, deep clinical blue,
+   larger type, taller controls, square-ish corners and a high-visibility yellow focus.
+   ---------------------------------------------------------------------------------------------------- */
+html[data-design="clinical"] {
+    font-size: 17px;
+    --d-bg: #eef2f4;
+    --d-panel: #ffffff;
+    --d-surface: #ffffff;
+    --d-sunken: #f2f5f6;
+    --d-hover: #e3eaed;
+    --d-line: #d5dce0;
+    --d-line-strong: #a9b5bd;
+    --d-fg: #1d2a33;
+    --d-muted: #45596a;
+    --d-faint: #6d7f8c;
+    --d-accent: #005eb8;
+    --d-accent-strong: #004a93;
+    --d-accent-fg: #ffffff;
+    --d-accent-soft: #e2edf8;
+    --d-accent-ink: #004a93;
+
+    --d-danger: #c62828;
+    --d-danger-ink: #a01b1b;
+    --d-danger-soft: #fbe9e9;
+    --d-danger-line: #e9a3a3;
+    --d-warn: #d68a00;
+    --d-warn-ink: #7a4b00;
+    --d-warn-soft: #fff1d3;
+    --d-ok: #00843d;
+    --d-ok-ink: #005a29;
+    --d-ok-soft: #e1f3e8;
+
+    --d-focus: #1d2a33;
+    --d-focus-shadow: 0 0 0 4px #ffd60a;
+    --d-scrim: rgba(29, 42, 51, 0.5);
+    --d-shadow-sm: 0 1px 0 rgba(29, 42, 51, 0.12);
+    --d-shadow-pop: 0 4px 0 rgba(29, 42, 51, 0.12), 0 12px 32px -12px rgba(29, 42, 51, 0.3);
+    --d-radius: 0.3rem;
+    --d-radius-control: 0.25rem;
+    --d-control: 2.75rem;
+}
+
+html[data-design="clinical"][data-theme="dark"] {
+    --d-bg: #0e1920;
+    --d-panel: #15232d;
+    --d-surface: #15232d;
+    --d-sunken: #101d25;
+    --d-hover: #1d2f3b;
+    --d-line: #29404f;
+    --d-line-strong: #46606f;
+    --d-fg: #f2f6f8;
+    --d-muted: #b9c8d2;
+    --d-faint: #8fa3b0;
+    --d-accent: #4aa3f0;
+    --d-accent-strong: #6db6f4;
+    --d-accent-fg: #06192b;
+    --d-accent-soft: rgba(74, 163, 240, 0.18);
+    --d-accent-ink: #8cc6f7;
+
+    --d-danger: #ef5350;
+    --d-danger-ink: #ff9d9a;
+    --d-danger-soft: rgba(239, 83, 80, 0.16);
+    --d-danger-line: rgba(239, 83, 80, 0.45);
+    --d-warn: #ffb300;
+    --d-warn-ink: #ffcf5c;
+    --d-warn-soft: rgba(255, 179, 0, 0.15);
+    --d-ok: #2ec26a;
+    --d-ok-ink: #79dea2;
+    --d-ok-soft: rgba(46, 194, 106, 0.16);
+
+    --d-focus: #ffd60a;
+    --d-focus-shadow: none;
+    --d-scrim: rgba(0, 0, 0, 0.6);
+    --d-shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.4);
+    --d-shadow-pop: 0 16px 40px -8px rgba(0, 0, 0, 0.7);
+}
+
+/* ----------------------------------------------------------------------------------------------------
+   Night: a central-station monitor for low light. Deep blue-black glass, cool steel text, a teal signal
+   colour (the hue of a bedside waveform), and large tabular readouts.
+   ---------------------------------------------------------------------------------------------------- */
+html[data-design="night"] {
+    --d-bg: #080c11;
+    --d-panel: #0c1218;
+    --d-surface: #0f161e;
+    --d-sunken: #0a1016;
+    --d-hover: rgba(120, 170, 220, 0.08);
+    --d-line: #1a2430;
+    --d-line-strong: #2a3847;
+    --d-fg: #e3ebf2;
+    --d-muted: #93a3b3;
+    --d-faint: #66788a;
+    --d-accent: #35b3c6;
+    --d-accent-strong: #58c6d6;
+    --d-accent-fg: #03161b;
+    --d-accent-soft: rgba(53, 179, 198, 0.14);
+    --d-accent-ink: #7ad5e2;
+
+    --d-danger: #ff5a5f;
+    --d-danger-ink: #ff9a9d;
+    --d-danger-soft: rgba(255, 90, 95, 0.14);
+    --d-danger-line: rgba(255, 90, 95, 0.5);
+    --d-warn: #ffb547;
+    --d-warn-ink: #ffcd80;
+    --d-warn-soft: rgba(255, 181, 71, 0.13);
+    --d-ok: #3ccf8e;
+    --d-ok-ink: #7fe3b5;
+    --d-ok-soft: rgba(60, 207, 142, 0.13);
+
+    --d-focus: #58c6d6;
+    --d-scrim: rgba(2, 5, 8, 0.7);
+    --d-shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.5);
+    --d-shadow-pop: 0 0 0 1px rgba(120, 170, 220, 0.08), 0 20px 48px -12px rgba(0, 0, 0, 0.8);
+    --d-radius: 0.5rem;
+    --d-radius-control: 0.35rem;
+
+    --h-sepsis: #3987e5;
+    --h-hypotension: #d95926;
+    --h-aki: #199e70;
+    --h-resp: #c98500;
+    --h-mortality: #d55181;
+}

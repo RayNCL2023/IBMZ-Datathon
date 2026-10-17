@@ -1,0 +1,97 @@
+// Each preview hard-codes its design's light palette so all three are visible side by side.
+.preview {
+    display: flex;
+    height: 5.5rem;
+    border-radius: 0.35rem;
+    overflow: hidden;
+    border: 1px solid var(--p-line);
+    background: var(--p-bg);
+
+    &[data-preview="ward"] {
+        --p-bg: #ffffff;
+        --p-panel: #f8f8f7;
+        --p-line: #ececea;
+        --p-card: #ffffff;
+        --p-accent: #1f6fd1;
+        --p-alert: #e5a00d;
+        --p-radius: 0.3rem;
+    }
+
+    &[data-preview="clinical"] {
+        --p-bg: #eef2f4;
+        --p-panel: #005eb8;
+        --p-line: #d5dce0;
+        --p-card: #ffffff;
+        --p-accent: #005eb8;
+        --p-alert: #c62828;
+        --p-radius: 0.1rem;
+    }
+
+    &[data-preview="night"] {
+        --p-bg: #080c11;
+        --p-panel: #0c1218;
+        --p-line: #1a2430;
+        --p-card: #0f161e;
+        --p-accent: #35b3c6;
+        --p-alert: #ff5a5f;
+        --p-radius: 0.25rem;
+    }
+}
+
+.side {
+    width: 22%;
+    background: var(--p-panel);
+    border-right: 1px solid var(--p-line);
+}
+
+.main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    padding: 0.35rem;
+}
+
+.top {
+    height: 0.6rem;
+    margin: -0.35rem -0.35rem 0;
+    background: var(--p-panel);
+}
+
+.cards {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.25rem;
+
+    &[data-tiles] {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    i {
+        background: var(--p-card);
+        border: 1px solid var(--p-line);
+        border-radius: var(--p-radius);
+
+        &[data-alert] {
+            box-shadow: inset 2px 0 0 var(--p-alert);
+        }
+    }
+}
+
+.rows {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+
+    i {
+        flex: 1;
+        background: var(--p-card);
+        border: 1px solid var(--p-line);
+
+        &[data-alert] {
+            box-shadow: inset 3px 0 0 var(--p-alert);
+        }
+    }
+}

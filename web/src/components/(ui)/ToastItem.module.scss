@@ -1,0 +1,73 @@
+.toast {
+    pointer-events: auto;
+    position: relative;
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 0.85rem 0.85rem 0.85rem 1rem;
+    background: var(--d-surface);
+    color: var(--d-fg);
+    border: 1px solid var(--d-line);
+    border-radius: var(--d-radius);
+    box-shadow: var(--d-shadow-pop);
+    overflow: hidden;
+    animation: toast-in 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    // Tone stripe: identity is carried by the icon too, never colour alone.
+    &::before {
+        content: "";
+        position: absolute;
+        inset: 0 auto 0 0;
+        width: 3px;
+        background: var(--tone);
+    }
+
+    &[data-tone="info"] {
+        --tone: var(--d-accent);
+    }
+    &[data-tone="success"] {
+        --tone: var(--d-ok);
+    }
+    &[data-tone="warning"] {
+        --tone: var(--d-warn);
+    }
+    &[data-tone="danger"] {
+        --tone: var(--d-danger);
+    }
+}
+
+.icon {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: var(--tone);
+}
+
+.close {
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    margin: -0.35rem -0.35rem 0 0;
+    border-radius: calc(var(--d-radius) - 0.15rem);
+    background: transparent;
+    color: var(--d-muted);
+
+    &:hover {
+        background: var(--d-hover);
+        color: var(--d-fg);
+    }
+}
+
+@keyframes toast-in {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem) scale(0.98);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .toast {
+        animation: none;
+    }
+}

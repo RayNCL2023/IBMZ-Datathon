@@ -5,61 +5,37 @@ import "./globals.css";
 import "./animations.scss";
 
 // =====================
-// Theme CSS Imports
-// =====================
-import "@/backbone/themes.scss";
-
-// =====================
-// Google Font (Inter)
-// =====================
-// import { Inter } from "next/font/google";
-// const inter = Inter({ subsets: ["latin"] });
-
-// =====================
 // Geist Font (By Vercel)
 // =====================
 import { GeistSans } from "@/fonts/Geist/GeistSans";
 
 // =====================
-// Custom Font (Neue Montreal)
-// =====================
-// import NeueMontreal from "@/fonts/NeueMontreal/NeueMontreal";
-
-// =====================
 // Metadata Export
 // =====================
 import { metaGen, setDefaults } from "nitlix-metagen";
+import { BRAND } from "@/var/nav";
+import { flags } from "@/var/flags";
 setDefaults({
-    title: "Nitlix Prebuilt App",
-    description:
-        "This is the default description for the NNT Next.JS template. Feel free to change it.",
+    title: BRAND.name,
+    description: "ICU early warning for sepsis, hypotension, acute kidney injury, respiratory failure and mortality, served by Snap ML on IBM LinuxONE.",
 });
 export const metadata = metaGen();
 
-// =====================
-// Theme Provider
-// =====================
 import Backbone from "@/backbone/Backbone";
-import Aos from "@/lib/Aos/Aos";
-import { ThemeProvider } from "next-themes";
-// =====================
-// Layout Export
-// =====================
-export default async function RootLayout({
-    children,
-}: {
-    children: React.ReactNode;
-}) {
+import Providers from "@/contexts/Providers";
+import { DESIGN_KEY } from "@/contexts/DesignContext";
+
+// Applies the saved design before first paint so there is no flash of the default design.
+const designScript = `try{var d=${flags.designSwitcher ? `localStorage.getItem(${JSON.stringify(DESIGN_KEY)})` : "null"};if(d==="ward"||d==="clinical"||d==="night")document.documentElement.dataset.design=d}catch(e){}`;
+
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
     return (
-        <html lang="en" suppressHydrationWarning>
+        <html lang="en-GB" data-design={flags.design} className={GeistSans.variable} suppressHydrationWarning>
+            <head>
+                <script dangerouslySetInnerHTML={{ __html: designScript }} />
+            </head>
             <Backbone className={GeistSans.className}>
-                {/* Feel free to remove the code below if you don't wish to use AOS */}
-                <Aos />
-                <ThemeProvider defaultTheme="system">
-                    <main className="_nitlix" data-scroll-container>
-                        {children}
-                    </main>
-                </ThemeProvider>
+                <Providers>{children}</Providers>
             </Backbone>
         </html>
     );
