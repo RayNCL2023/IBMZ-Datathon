@@ -60,7 +60,7 @@ export default function () {
                         onChange={setMode}
                         className="rounded-full [&>button]:rounded-full [&>button]:px-[1rem]"
                         options={[
-                            { value: "simple", label: "Simple", title: "Floor plan: pinging bays with every alert at a glance" },
+                            { value: "simple", label: "Simple", title: "Floor plan: pinging beds with every alert at a glance" },
                             { value: "analytical", label: "Analytical", title: "Every value, sortable" },
                         ]}
                     />

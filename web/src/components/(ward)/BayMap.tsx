@@ -49,10 +49,10 @@ function Bay({ bed, dim }: { bed: Bed; dim: boolean }) {
             className={s.bay}
             data-tone={tone}
             data-dim={dim || undefined}
-            aria-label={`Bay ${bed.bed}, ${headline}, NEWS2 ${bed.news2}${others.length ? `, also ${others.map((h) => HEAD_META[h].label).join(", ")}` : ""}`}
+            aria-label={`Bed ${bed.bed}, ${headline}, NEWS2 ${bed.news2}${others.length ? `, also ${others.map((h) => HEAD_META[h].label).join(", ")}` : ""}`}
         >
             <div className="flex flex-row items-center justify-between gap-[.5rem]">
-                <span className="text-[1rem] font-[700] tracking-[-0.01em]">Bay {String(bed.bed).padStart(2, "0")}</span>
+                <span className="text-[1rem] font-[700] tracking-[-0.01em]">Bed {String(bed.bed).padStart(2, "0")}</span>
                 <News2Badge score={bed.news2} alert={bed.news2Alert} />
             </div>
 
@@ -85,7 +85,7 @@ function Bay({ bed, dim }: { bed: Bed; dim: boolean }) {
     );
 }
 
-// Simple mode: the ward as bays, most urgent first by default (same sort as the analytical view).
+// Simple mode: the ward as bed tiles, most urgent first by default (same sort as the analytical view).
 export default function ({ beds, filter, sort }: { beds: Bed[]; filter: FilterKey; sort: SortKey }) {
     const match = new Set(filterBeds(beds, filter).map((b) => b.patientId));
     const ordered = sortBeds(beds, sort);
