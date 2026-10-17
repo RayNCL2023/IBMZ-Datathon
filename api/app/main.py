@@ -9,7 +9,7 @@ from pydantic import BaseModel
 from . import features
 from . import model as risk_model
 from . import news2
-from .ward import Ward
+from .ward import VITALS, Ward
 
 API_KEY = os.getenv("API_KEY", "")
 MODEL_VERSION = os.getenv("MODEL_VERSION", "dev")
@@ -112,6 +112,62 @@ def privacy():
         "federated": report.get("federated", {}),
         "local_only": report.get("local_only", {}),
         "hospitals": model.privacy_report.get("hospitals", {}),
+    }
+
+
+@app.get("/fatigue", dependencies=[Depends(require_key)])
+def fatigue():
+    """Alarm load vs events caught per head on held-out patients, model threshold sweep vs NEWS2 cut-offs."""
+    return {"heads": model.fatigue}
+
+
+@app.get("/patient/{patient_id}", dependencies=[Depends(require_key)])
+def patient(patient_id: str, hour: int | None = None, privacy: str | None = None):
+    """Every hour of one ward patient's stay (up to `hour`, so a replay never shows the future): all risks
+    and NEWS2 per hour, first alarm per head vs NEWS2, and drivers at the last hour."""
+    found = ward.find(patient_id)
+    if not found:
+        raise HTTPException(status_code=404, detail="unknown patient")
+    if privacy and privacy not in model.privacy:
+        raise HTTPException(status_code=400, detail=f"privacy must be one of {sorted(model.privacy)}")
+    if hour is not None and hour < 0:
+        raise HTTPException(status_code=400, detail="hour must be >= 0")
+
+    bed, p = found
+    end = len(p["rows"]) if hour is None else min(hour, len(p["rows"]) - 1) + 1
+    F = features.patient_features(p["raw"])[:end]
+    sites = [p["hospital"]] * end
+    risks = model.score_features(F, sites, privacy, drivers=False)
+    last = model.score_features(F[-1:], sites[-1:], privacy)[0]
+
+    timeline = []
+    for h, (row, rs) in enumerate(zip(p["rows"][:end], risks)):
+        score, alert = news2.score(row)
+        ratio, top = risk_model.priority(rs)
+        timeline.append({
+            "hour": h,
+            "risks": {k: {"risk": v["risk"], "alert": v["alert"]} for k, v in rs.items()},
+            "priority": ratio,
+            "topRisk": top,
+            "news2": score,
+            "news2Alert": alert,
+            "vitals": {k: row.get(k) for k in VITALS},
+        })
+
+    labels = [int(r.get("SepsisLabel") or 0) for r in p["rows"]]
+    first = lambda flags: next((t["hour"] for t, f in zip(timeline, flags) if f), None)
+    return {
+        "patientId": p["id"],
+        "hospital": p["hospital"],
+        "bed": bed + 1,
+        "lengthOfStay": len(p["rows"]),
+        # PhysioNet 2019 labels start 6h before sepsis was clinically recognised.
+        "sepsisOnset": labels.index(1) + 6 if 1 in labels else None,
+        "thresholds": {k: v["threshold"] for k, v in last.items()},
+        "firstAlert": {k: first([t["risks"][k]["alert"] for t in timeline]) for k in last},
+        "news2FirstAlert": first([t["news2Alert"] for t in timeline]),
+        "timeline": timeline,
+        "drivers": {k: v["drivers"] for k, v in last.items()},
     }
 
 
