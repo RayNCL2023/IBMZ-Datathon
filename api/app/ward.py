@@ -2,14 +2,18 @@
 
 import csv
 import glob
+import json
 import os
 import random
+
+from . import features
 
 VITALS = ["HR", "O2Sat", "Temp", "SBP", "MAP", "DBP", "Resp", "EtCO2"]
 
 DATA_DIR = os.getenv("DATA_DIR", "/data")
 BEDS = int(os.getenv("WARD_BEDS", "12"))
 SEED = int(os.getenv("WARD_SEED", "2026"))
+TEST_PATIENTS = os.path.join(os.getenv("MODEL_DIR", "/app/model"), "test_patients.json")
 
 
 def _num(v):
@@ -18,25 +22,29 @@ def _num(v):
     return float(v)
 
 
-def load_patient(path: str) -> list[dict]:
-    """Rows as dicts, numeric, with every column forward-filled within the patient."""
+def load_patient(path: str) -> tuple[list[dict], list[dict]]:
+    """(forward-filled rows for display, raw rows for the model). Both numeric dicts."""
     with open(path) as fh:
         reader = csv.DictReader(fh, delimiter="|")
-        rows, last = [], {}
+        rows, raws, last = [], [], {}
         for raw in reader:
             row = {k: _num(v) for k, v in raw.items()}
+            raws.append(dict(row))
             for k, v in row.items():
                 if v is None:
                     row[k] = last.get(k)
                     continue
                 last[k] = v
             rows.append(row)
-    return rows
+    return rows, raws
 
 
 def _pick_patients() -> list[str]:
     """Half septic, half not, from both hospitals, deterministic. Septic patients need >= 24h of stay."""
     files = sorted(glob.glob(os.path.join(DATA_DIR, "*", "*.psv")))
+    if os.path.exists(TEST_PATIENTS):  # only patients the model never trained on
+        held_out = {os.path.join(DATA_DIR, f + ".psv") for f in json.load(open(TEST_PATIENTS))}
+        files = [f for f in files if f in held_out]
     if not files:
         return []
 
@@ -67,7 +75,8 @@ class Ward:
         for path in _pick_patients():
             hospital = "A" if "setA" in path else "B"
             pid = os.path.splitext(os.path.basename(path))[0]
-            self.patients.append({"id": pid, "hospital": hospital, "rows": load_patient(path)})
+            rows, raws = load_patient(path)
+            self.patients.append({"id": pid, "hospital": hospital, "rows": rows, "raw": features.rows_to_raw(raws)})
 
     def at(self, hour: int) -> list[dict]:
         beds = []
@@ -83,6 +92,7 @@ class Ward:
                 "lengthOfStay": len(rows),
                 "discharged": hour >= len(rows),
                 "row": row,
+                "history": p["raw"][: h + 1],
                 "vitals": {k: row.get(k) for k in VITALS},
                 "label": int(row.get("SepsisLabel") or 0),
             })

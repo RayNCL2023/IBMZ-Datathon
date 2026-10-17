@@ -1,0 +1,5 @@
+xgboost==2.1.4  # Snap ML 1.17 cannot parse xgboost 3.x JSON (array base_score)
+numpy
+pandas
+pyarrow
+scikit-learn
