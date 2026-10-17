@@ -31,12 +31,14 @@ class Rows(BaseModel):
     # Optional: one list of hourly rows per patient, oldest first, scored at the last hour.
     # Without history, each row is scored as a patient's first hour (trend features are empty).
     history: list[list[dict[str, float | None]]] | None = None
+    # Site whose calibration and alarm thresholds to use (A, B, M, C); unknown or empty = pooled "global".
+    site: str | None = None
 
 
-def _score(histories: list) -> dict:
+def _score(histories: list, sites: list[str | None]) -> dict:
     """Every head for every patient, plus a priority to rank by. Top-level sepsis fields kept for old clients."""
-    risks = model.score(histories)
-    priority = [risk_model.priority({h: r["risk"] for h, r in rs.items()}, model.thresholds) for rs in risks]
+    risks = model.score(histories, sites)
+    priority = [risk_model.priority(rs) for rs in risks]
     out = {
         "risks": risks,
         "thresholds": model.thresholds,
@@ -47,7 +49,7 @@ def _score(histories: list) -> dict:
         out["probabilities"] = [rs["sepsis"]["risk"] for rs in risks]
         out["alert"] = [rs["sepsis"]["alert"] for rs in risks]
         out["drivers"] = [rs["sepsis"]["drivers"] for rs in risks]
-        out["threshold"] = model.thresholds["sepsis"]
+        out["threshold"] = risks[0]["sepsis"]["threshold"] if risks else model.thresholds["sepsis"]
     return out
 
 
@@ -77,7 +79,7 @@ def predict(body: Rows):
     histories = [features.rows_to_raw(h) for h in body.history] if body.history else [
         features.rows_to_raw([r]) for r in body.rows
     ]
-    out = _score(histories)
+    out = _score(histories, [body.site] * len(histories))
     out["latency_ms"] = round((time.perf_counter() - started) * 1000, 3)
     return out
 
@@ -107,7 +109,7 @@ def ward_at(hour: int = 0):
     if not beds:
         return {"hour": hour, "beds": []}
 
-    scored = _score([b.pop("history") for b in beds])
+    scored = _score([b.pop("history") for b in beds], [b["hospital"] for b in beds])
     for i, bed in enumerate(beds):
         row = bed.pop("row")
         bed["news2"], bed["news2Alert"] = news2.score(row)
