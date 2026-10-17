@@ -16,18 +16,29 @@ Every endpoint except `/health` needs the header `x-api-key`.
 
 Until `model/model.json` exists, `/predict` and `/ward` use a **NEWS2-based stub**, so the frontend can build against real response shapes.
 
-## Model
+## Model: five risk heads
 
-Training lives in `ml/` and imports `app/features.py`, so train and serve use the same feature code.
+Training lives in `ml/` and imports `app/features.py`, so train and serve share the same feature code. Each head is a separate XGBoost model that Snap ML runs on NNPA. They share one feature pass per bed.
+
+| Head | Label (new events only, first episode) | Horizon | Trained on |
+|---|---|---|---|
+| sepsis | PhysioNet 2019 SepsisLabel | 6h | 2019 A+B |
+| hypotension | MAP < 65 for 2 consecutive measured hours | 6h | 2019 A+B, 2012 |
+| aki | KDIGO creatinine: +0.3 mg/dL in 48h, or 1.5x the lowest earlier value | 24h | 2019 A+B, 2012 |
+| resp | SpO2 < 90 for 2h, or FiO2 up by 0.2 or more within 12h | 6h | 2019 A+B |
+| mortality | in-hospital death | stay | 2012 (first 48h) |
+
+Each head's threshold is set so it raises **the same number of alarms as NEWS2 ≥ 5** on validation, which makes every comparison apples-to-apples. `priority` = max over heads of risk ÷ threshold, which is how the ward is ranked.
 
 ```bash
 cd ml && uv venv -p 3.12 .venv && uv pip install -p .venv -r requirements.txt
-.venv/bin/python prepare.py            # ~3s: all 40k patients -> cache/data.npz (107 features)
-.venv/bin/python train.py --export     # ~15s: trains, compares with NEWS2, writes api/model/
-.venv/bin/python train.py --train-on A # site-only model, for the federated comparison
+.venv/bin/python p2012/convert.py ~/Downloads/physionet-2012/raw ~/Downloads/physionet-2012/training_set2012
+.venv/bin/python prepare.py            # ~3s: all sources -> cache/data.npz (features + every label)
+.venv/bin/python train.py --export     # ~70s: trains all heads, compares with NEWS2, writes api/model/
+.venv/bin/python train.py --targets sepsis --sites A   # one hospital only, for the federated comparison
 ```
 
-`--export` writes `model.json`, `features.json`, `impute.json` (Snap ML ignores NaN branches, so we impute at train and serve time), `metrics.json` (threshold plus held-out results), `test_patients.json` (the demo ward replays only these), and `parity.npz`. Keep **xgboost 2.1.4**, because Snap ML 1.17 can't read 3.x JSON. Never use pickle.
+`--export` writes `heads/<risk>.json`, `features.json`, `impute.json` (Snap ML ignores NaN branches, so we impute at train and serve time), `metrics.json` (thresholds plus held-out results), `test_patients.json` (the demo ward replays only these), and `parity.npz`. Keep **xgboost 2.1.4**, because Snap ML 1.17 can't read 3.x JSON. Never use pickle.
 
 ## Deploy (from the repo root on your laptop)
 
