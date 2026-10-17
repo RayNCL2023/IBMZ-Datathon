@@ -1,0 +1,13 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    environment:
+      API_KEY: ${API_KEY:-}
+      THRESHOLD: ${THRESHOLD:-}  # empty = use metrics.json threshold
+      MODEL_VERSION: ${MODEL_VERSION:-dev}
+    volumes:
+      - ./model:/app/model:ro
+      - ${DATA_DIR:-/home/linux1/data/training}:/data:ro
