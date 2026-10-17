@@ -17,8 +17,10 @@ export default function ({ k, value, size = "md", className }: { k: VitalKey; va
     const abnormal = isAbnormal(k, value);
     return (
         <div className={twMerge("flex flex-col min-w-0", className)}>
-            <span className="text-[.8125rem] text-muted whitespace-nowrap">{meta.label}</span>
-            <span className="flex flex-row items-baseline gap-[.25rem] font-num">
+            <span className="text-[.8125rem] text-muted truncate" title={meta.label}>
+                {meta.label}
+            </span>
+            <span className="flex flex-row flex-wrap items-baseline gap-x-[.25rem] font-num">
                 <span
                     className={twMerge(
                         "font-[600] text-fg",

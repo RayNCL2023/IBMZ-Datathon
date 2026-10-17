@@ -28,7 +28,7 @@ export default function ({ bed }: { bed: Bed }) {
                 <BedStatusPill bed={bed} />
             </div>
 
-            <div className={twMerge("grid grid-cols-3 sm:grid-cols-5 gap-[.5rem] py-[.75rem] border-y-[1px] border-line", bed.discharged && "opacity-50")}>
+            <div className={twMerge("grid grid-cols-[repeat(auto-fit,minmax(5.5rem,1fr))] gap-[.5rem] py-[.75rem] border-y-[1px] border-line", bed.discharged && "opacity-50")}>
                 {CARD_VITALS.map((k) => (
                     <VitalReadout key={k} k={k} value={bed.vitals[k]} />
                 ))}
