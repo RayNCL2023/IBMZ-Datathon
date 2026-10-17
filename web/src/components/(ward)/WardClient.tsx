@@ -1,0 +1,71 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { useWard } from "@/contexts/WardContext";
+import { useDesign } from "@/contexts/DesignContext";
+import { useReplay } from "@/contexts/ReplayContext";
+import { filterBeds, sortBeds, type FilterKey, type SortKey } from "@/lib/ward";
+import PageHeader from "@/components/(shell)/PageHeader";
+import WardSummary from "@/components/(ward)/WardSummary";
+import WardToolbar, { type WardLayout } from "@/components/(ward)/WardToolbar";
+import BedCard from "@/components/(ward)/BedCard";
+import BedTable from "@/components/(ward)/BedTable";
+import BedTile from "@/components/(ward)/BedTile";
+import { EmptyState, ErrorState, Skeleton } from "@/components/(ui)/States";
+
+const GRID: Record<Exclude<WardLayout, "table">, string> = {
+    cards: "grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-3 gap-[1rem]",
+    tiles: "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-[.75rem]",
+};
+
+export default function () {
+    const { beds, data, error, reload } = useWard();
+    const { config } = useDesign();
+    const { hour, privacy } = useReplay();
+    const [filter, setFilter] = useState<FilterKey>("all");
+    const [sort, setSort] = useState<SortKey>("priority");
+    const [layout, setLayout] = useState<WardLayout>(config.wardLayout);
+
+    // Each design brings its own default layout; the toolbar can still switch.
+    useEffect(() => setLayout(config.wardLayout), [config.wardLayout]);
+
+    const shown = sortBeds(filterBeds(beds, filter), sort);
+
+    return (
+        <div className="page">
+            <PageHeader
+                title="ICU ward"
+                description={`Twelve held-out ICU stays replayed hour by hour on LinuxONE. Showing hour ${hour}${privacy ? ` with the federated sepsis model (ε = ${privacy})` : ""}.`}
+            />
+
+            {error && !data && <ErrorState error={error} onRetry={reload} />}
+
+            {!data && !error && (
+                <div className="flex flex-col gap-[1rem]">
+                    <Skeleton className="h-[6rem]" />
+                    <div className={GRID.cards}>
+                        {Array.from({ length: 6 }, (_, i) => (
+                            <Skeleton key={i} className="h-[17rem]" />
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            {data && (
+                <>
+                    <WardSummary beds={beds} />
+                    <WardToolbar beds={beds} filter={filter} setFilter={setFilter} sort={sort} setSort={setSort} layout={layout} setLayout={setLayout} />
+                    {!shown.length && (
+                        <EmptyState title="No beds match this filter">Choose All beds to see the whole ward.</EmptyState>
+                    )}
+                    {shown.length > 0 && layout === "table" && <BedTable beds={shown} />}
+                    {shown.length > 0 && layout !== "table" && (
+                        <div className={GRID[layout]}>
+                            {shown.map((bed) => (layout === "cards" ? <BedCard key={bed.patientId} bed={bed} /> : <BedTile key={bed.patientId} bed={bed} />))}
+                        </div>
+                    )}
+                </>
+            )}
+        </div>
+    );
+}

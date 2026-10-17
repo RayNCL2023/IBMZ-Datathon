@@ -1,0 +1,95 @@
+.root {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+
+    &[data-variant="palette"] {
+        align-items: flex-start;
+        padding-top: 12vh;
+    }
+
+    &[data-variant="drawer"] {
+        justify-content: flex-end;
+        align-items: stretch;
+        padding: 0.5rem;
+    }
+}
+
+.backdrop {
+    position: absolute;
+    inset: 0;
+    background: var(--d-scrim);
+    animation: fade 0.18s ease-out;
+}
+
+.panel {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-height: calc(100dvh - 2rem);
+    background: var(--d-surface);
+    color: var(--d-fg);
+    border: 1px solid var(--d-line);
+    border-radius: calc(var(--d-radius) + 0.25rem);
+    box-shadow: var(--d-shadow-pop);
+    outline: none;
+    overflow: hidden;
+    animation: pop 0.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+
+    &[data-size="sm"] {
+        max-width: 26rem;
+    }
+    &[data-size="md"] {
+        max-width: 36rem;
+    }
+    &[data-size="lg"] {
+        max-width: 52rem;
+    }
+    &[data-size="xl"] {
+        max-width: 72rem;
+    }
+
+    [data-variant="drawer"] & {
+        max-height: none;
+        height: 100%;
+        max-width: min(56rem, 100%);
+        animation-name: slide;
+    }
+
+    [data-variant="palette"] & {
+        max-width: 38rem;
+        max-height: 70vh;
+    }
+}
+
+@keyframes fade {
+    from {
+        opacity: 0;
+    }
+}
+
+@keyframes pop {
+    from {
+        opacity: 0;
+        transform: translateY(0.5rem) scale(0.985);
+    }
+}
+
+@keyframes slide {
+    from {
+        opacity: 0.4;
+        transform: translateX(2rem);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .backdrop,
+    .panel {
+        animation: none;
+    }
+}

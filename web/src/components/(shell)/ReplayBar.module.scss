@@ -1,0 +1,117 @@
+.bar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem var(--gutter);
+    background: color-mix(in srgb, var(--d-bg) 88%, transparent);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--d-line);
+}
+
+.play {
+    display: grid;
+    place-items: center;
+    width: var(--d-control);
+    height: var(--d-control);
+    border-radius: 999px;
+    background: var(--d-accent);
+    color: var(--d-accent-fg);
+
+    &:hover {
+        background: var(--d-accent-strong);
+    }
+}
+
+.hour {
+    display: flex;
+    align-items: baseline;
+    gap: 0.3rem;
+    white-space: nowrap;
+    font-size: 0.85rem;
+    font-variant-numeric: tabular-nums;
+    color: var(--d-muted);
+
+    b {
+        color: var(--d-fg);
+        font-weight: 650;
+        min-width: 4.75rem;
+    }
+}
+
+.range {
+    flex: 1;
+    min-width: 6rem;
+    height: var(--d-control);
+    appearance: none;
+    background: transparent;
+    cursor: pointer;
+
+    &::-webkit-slider-runnable-track {
+        height: 0.35rem;
+        border-radius: 999px;
+        background: linear-gradient(to right, var(--d-accent) var(--progress), var(--d-line-strong) var(--progress));
+    }
+
+    &::-moz-range-track {
+        height: 0.35rem;
+        border-radius: 999px;
+        background: linear-gradient(to right, var(--d-accent) var(--progress), var(--d-line-strong) var(--progress));
+    }
+
+    &::-webkit-slider-thumb {
+        appearance: none;
+        width: 1.1rem;
+        height: 1.1rem;
+        margin-top: -0.375rem;
+        border-radius: 999px;
+        background: var(--d-surface);
+        border: 2px solid var(--d-accent);
+        box-shadow: var(--d-shadow-sm);
+    }
+
+    &::-moz-range-thumb {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 999px;
+        background: var(--d-surface);
+        border: 2px solid var(--d-accent);
+    }
+}
+
+.loading {
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 999px;
+    background: transparent;
+
+    &[data-on] {
+        background: var(--d-accent);
+        animation: pulse 0.9s ease-in-out infinite alternate;
+    }
+}
+
+.select {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.8rem;
+    color: var(--d-muted);
+    white-space: nowrap;
+
+    select {
+        min-height: var(--d-control);
+        padding: 0 0.5rem;
+        border-radius: var(--d-radius-control);
+        border: 1px solid var(--d-line-strong);
+        background: var(--d-surface);
+        color: var(--d-fg);
+        font-size: 0.85rem;
+    }
+}
+
+@keyframes pulse {
+    from {
+        opacity: 0.25;
+    }
+}
