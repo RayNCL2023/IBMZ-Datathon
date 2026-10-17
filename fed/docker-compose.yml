@@ -1,0 +1,51 @@
+# Federation on one LinuxONE VM: each hospital container mounts ONLY its own data, read-only.
+# The network is internal (no internet, no published ports); the coordinator mounts no patient data.
+#   docker compose -f fed/docker-compose.yml up -d --build hospital-a hospital-b hospital-m
+#   docker compose -f fed/docker-compose.yml run --rm coordinator
+x-hospital: &hospital
+  build: { context: .., dockerfile: fed/Dockerfile }
+  image: mfc-fed
+  networks: [federation]
+  restart: unless-stopped
+
+services:
+  hospital-a:
+    <<: *hospital
+    environment: { HOSPITAL: A, DATA_DIR: /data }
+    volumes: ["${DATA_ROOT:-/home/linux1/data}/training/training_setA:/data:ro"]
+
+  hospital-b:
+    <<: *hospital
+    environment: { HOSPITAL: B, DATA_DIR: /data }
+    volumes: ["${DATA_ROOT:-/home/linux1/data}/training/training_setB:/data:ro"]
+
+  hospital-m:
+    <<: *hospital
+    environment: { HOSPITAL: M, DATA_DIR: /data, OUTCOMES: /outcomes/outcomes2012.csv }
+    volumes:
+      - "${DATA_ROOT:-/home/linux1/data}/physionet-2012/training_set2012:/data:ro"
+      - "${DATA_ROOT:-/home/linux1/data}/physionet-2012/outcomes2012.csv:/outcomes/outcomes2012.csv:ro"
+
+  coordinator:
+    image: mfc-fed
+    networks: [federation]
+    profiles: [run]
+    volumes: ["./out:/srv/fed/out"]
+    command:
+      - python3
+      - coordinator.py
+      - --nodes
+      - http://hospital-a:8000
+      - http://hospital-b:8000
+      - http://hospital-m:8000
+      - --targets
+      - sepsis
+      - --epsilons
+      - "10"
+      - "3"
+      - "1"
+      - "0.3"
+
+networks:
+  federation:
+    internal: true

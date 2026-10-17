@@ -33,11 +33,13 @@ class Rows(BaseModel):
     history: list[list[dict[str, float | None]]] | None = None
     # Site whose calibration and alarm thresholds to use (A, B, M, C); unknown or empty = pooled "global".
     site: str | None = None
+    # Privacy budget of the federated sepsis model to use (see /privacy); empty = centrally trained model.
+    privacy: str | None = None
 
 
-def _score(histories: list, sites: list[str | None]) -> dict:
+def _score(histories: list, sites: list[str | None], privacy: str | None = None) -> dict:
     """Every head for every patient, plus a priority to rank by. Top-level sepsis fields kept for old clients."""
-    risks = model.score(histories, sites)
+    risks = model.score(histories, sites, privacy)
     priority = [risk_model.priority(rs) for rs in risks]
     out = {
         "risks": risks,
@@ -79,7 +81,7 @@ def predict(body: Rows):
     histories = [features.rows_to_raw(h) for h in body.history] if body.history else [
         features.rows_to_raw([r]) for r in body.rows
     ]
-    out = _score(histories, [body.site] * len(histories))
+    out = _score(histories, [body.site] * len(histories), body.privacy)
     out["latency_ms"] = round((time.perf_counter() - started) * 1000, 3)
     return out
 
@@ -100,8 +102,21 @@ def metrics():
     return model.metrics
 
 
+@app.get("/privacy", dependencies=[Depends(require_key)])
+def privacy():
+    """Federated sepsis models by privacy budget, with held-out AUROC per hospital, for the dashboard slider.
+    "none" = federated without noise; local_only = each hospital alone; epsilon is per tree (row level)."""
+    report = model.privacy_report.get("targets", {}).get("sepsis", {})
+    return {
+        "options": sorted(model.privacy, key=lambda k: -float("inf") if k == "none" else -float(k)),
+        "federated": report.get("federated", {}),
+        "local_only": report.get("local_only", {}),
+        "hospitals": model.privacy_report.get("hospitals", {}),
+    }
+
+
 @app.get("/ward", dependencies=[Depends(require_key)])
-def ward_at(hour: int = 0):
+def ward_at(hour: int = 0, privacy: str | None = None):
     if hour < 0:
         raise HTTPException(status_code=400, detail="hour must be >= 0")
 
@@ -109,7 +124,9 @@ def ward_at(hour: int = 0):
     if not beds:
         return {"hour": hour, "beds": []}
 
-    scored = _score([b.pop("history") for b in beds], [b["hospital"] for b in beds])
+    if privacy and privacy not in model.privacy:
+        raise HTTPException(status_code=400, detail=f"privacy must be one of {sorted(model.privacy)}")
+    scored = _score([b.pop("history") for b in beds], [b["hospital"] for b in beds], privacy)
     for i, bed in enumerate(beds):
         row = bed.pop("row")
         bed["news2"], bed["news2Alert"] = news2.score(row)
@@ -118,4 +135,4 @@ def ward_at(hour: int = 0):
         bed["topRisk"] = scored["topRisk"][i]
         sepsis = bed["risks"].get("sepsis", {})
         bed["risk"], bed["alert"], bed["drivers"] = sepsis.get("risk"), sepsis.get("alert"), sepsis.get("drivers")
-    return {"hour": hour, "thresholds": scored["thresholds"], "beds": beds}
+    return {"hour": hour, "privacy": privacy, "thresholds": scored["thresholds"], "beds": beds}
