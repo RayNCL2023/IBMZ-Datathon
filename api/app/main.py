@@ -34,13 +34,21 @@ class Rows(BaseModel):
 
 
 def _score(histories: list) -> dict:
-    probs, drivers = model.score(histories)
-    return {
-        "probabilities": probs,
-        "alert": [p >= model.threshold for p in probs],
-        "threshold": model.threshold,
-        "drivers": drivers,
+    """Every head for every patient, plus a priority to rank by. Top-level sepsis fields kept for old clients."""
+    risks = model.score(histories)
+    priority = [risk_model.priority({h: r["risk"] for h, r in rs.items()}, model.thresholds) for rs in risks]
+    out = {
+        "risks": risks,
+        "thresholds": model.thresholds,
+        "priority": [p for p, _ in priority],
+        "topRisk": [h for _, h in priority],
     }
+    if "sepsis" in model.thresholds:
+        out["probabilities"] = [rs["sepsis"]["risk"] for rs in risks]
+        out["alert"] = [rs["sepsis"]["alert"] for rs in risks]
+        out["drivers"] = [rs["sepsis"]["drivers"] for rs in risks]
+        out["threshold"] = model.thresholds["sepsis"]
+    return out
 
 
 @app.get("/health")
@@ -51,8 +59,11 @@ def health():
         "tree_format": model.tree_format,
         "n_features": len(model.features),
         "model_version": MODEL_VERSION,
-        "threshold": model.threshold,
-        "test_auroc": model.metrics.get("test", {}).get("AB", {}).get("model", {}).get("auroc"),
+        "heads": list(model.thresholds),
+        "test_auroc": {
+            h: r.get("test", {}).get("all", {}).get("model", {}).get("auroc")
+            for h, r in model.metrics.get("heads", {}).items()
+        },
         "ward_beds": len(ward.patients),
     }
 
@@ -83,7 +94,7 @@ def news2_scores(body: Rows):
 
 @app.get("/metrics", dependencies=[Depends(require_key)])
 def metrics():
-    """Held-out evaluation vs NEWS2, per hospital (from ml/train.py)."""
+    """Held-out evaluation of every head vs NEWS2 and a one-signal baseline, per site (from ml/train.py)."""
     return model.metrics
 
 
@@ -100,7 +111,9 @@ def ward_at(hour: int = 0):
     for i, bed in enumerate(beds):
         row = bed.pop("row")
         bed["news2"], bed["news2Alert"] = news2.score(row)
-        bed["risk"] = scored["probabilities"][i]
-        bed["alert"] = scored["alert"][i]
-        bed["drivers"] = scored["drivers"][i]
-    return {"hour": hour, "threshold": scored["threshold"], "beds": beds}
+        bed["risks"] = scored["risks"][i]
+        bed["priority"] = scored["priority"][i]
+        bed["topRisk"] = scored["topRisk"][i]
+        sepsis = bed["risks"].get("sepsis", {})
+        bed["risk"], bed["alert"], bed["drivers"] = sepsis.get("risk"), sepsis.get("alert"), sepsis.get("drivers")
+    return {"hour": hour, "thresholds": scored["thresholds"], "beds": beds}
