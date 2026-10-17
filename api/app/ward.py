@@ -78,6 +78,9 @@ class Ward:
             rows, raws = load_patient(path)
             self.patients.append({"id": pid, "hospital": hospital, "rows": rows, "raw": features.rows_to_raw(raws)})
 
+    def find(self, patient_id: str) -> tuple[int, dict] | None:
+        return next(((i, p) for i, p in enumerate(self.patients) if p["id"] == patient_id), None)
+
     def at(self, hour: int) -> list[dict]:
         beds = []
         for i, p in enumerate(self.patients):

@@ -7,6 +7,7 @@ Export contract (ml/train.py --export writes these into MODEL_DIR):
                  impute identically at train and serve time.
 - metrics.json   evaluation per head vs NEWS2 and a one-signal baseline
 - calibration.json  per head and site: isotonic map raw score -> probability, and the alarm threshold
+- fatigue.json   alarm load vs events caught per head, on held-out patients (ml/fatigue.py)
 
 Every model scores *histories*: one [T, len(features.RAW)] raw array per patient, scored at its last hour.
 """
@@ -54,21 +55,26 @@ class StubModel:
     tree_format = None
     features = features.NAMES
     metrics = {}
+    fatigue = {}
     thresholds = {"sepsis": float(os.getenv("THRESHOLD") or 0.5)}
 
     privacy = {}
     privacy_report = {}
 
     def score(self, histories: list[np.ndarray], sites: list[str | None], privacy: str | None = None) -> list[dict]:
-        F = _last_rows(histories)
+        return self.score_features(_last_rows(histories), sites, privacy)
+
+    def score_features(self, F: np.ndarray, sites: list, privacy: str | None = None, drivers: bool = True) -> list[dict]:
         out = []
         threshold = self.thresholds["sepsis"]
         for row in F:
             risk = 1 / (1 + math.exp(-(row[features.NAMES.index("NEWS2")] - 5)))
             parts = news2.components(dict(zip(features.RAW, row[: len(features.RAW)].tolist())))
             top = sorted(parts.items(), key=lambda kv: kv[1], reverse=True)[:3]
-            drivers = [{"feature": k, "contribution": float(v)} for k, v in top if v > 0]
-            out.append({"sepsis": {"risk": risk, "alert": risk >= threshold, "threshold": threshold, "drivers": drivers}})
+            r = {"risk": risk, "alert": risk >= threshold, "threshold": threshold}
+            if drivers:
+                r["drivers"] = [{"feature": k, "contribution": float(v)} for k, v in top if v > 0]
+            out.append({"sepsis": r})
         return out
 
 
@@ -89,6 +95,8 @@ class SnapModel:
         impute = json.load(open(os.path.join(MODEL_DIR, "impute.json")))
         self.impute = np.array([impute[f] for f in names], dtype=np.float32)
         self.metrics = json.load(open(os.path.join(MODEL_DIR, "metrics.json")))
+        fatigue = os.path.join(MODEL_DIR, "fatigue.json")
+        self.fatigue = json.load(open(fatigue)) if os.path.exists(fatigue) else {}
         # {head: {site: {x, y, raw_threshold, threshold}}}; "global" is the fallback for unknown sites.
         self.calibration = json.load(open(os.path.join(MODEL_DIR, "calibration.json")))
 
@@ -134,12 +142,14 @@ class SnapModel:
             calibration = json.load(open(path[:-5] + ".calibration.json"))
             self.privacy[key] = (booster, impute, calibration)
 
-    def _score_head(self, booster, F: np.ndarray, impute: np.ndarray, calibration: dict, sites: list) -> list[dict]:
+    def _score_head(
+        self, booster, F: np.ndarray, impute: np.ndarray, calibration: dict, sites: list, drivers: bool = True
+    ) -> list[dict]:
         """Calibrated risk, alert and drivers for one head. Drivers by occlusion: reset one clinical variable
         (all its features) to the population value and see how far the risk falls. The real rows and all
         occluded copies go to the accelerator in one batch."""
         F = np.where(np.isnan(F), impute, F).astype(np.float32)
-        names = list(self.groups)
+        names = list(self.groups) if drivers else []
         occluded = np.repeat(F, len(names), axis=0)
         for j, g in enumerate(names):
             occluded[j :: len(names), self.groups[g]] = impute[self.groups[g]]
@@ -153,26 +163,27 @@ class SnapModel:
             occ = np.interp(raw[len(F) + i * len(names) : len(F) + (i + 1) * len(names)], cal["x"], cal["y"])
             drop = risk - occ
             top = np.argsort(-drop)[:3]
-            out.append({
-                "risk": round(risk, 4),
-                "alert": bool(raw[i] >= cal["raw_threshold"]),
-                "threshold": cal["threshold"],
-                "drivers": [
+            r = {"risk": round(risk, 4), "alert": bool(raw[i] >= cal["raw_threshold"]), "threshold": cal["threshold"]}
+            if drivers:
+                r["drivers"] = [
                     {"feature": names[j], "contribution": round(float(drop[j]), 4)} for j in top if drop[j] > 0
-                ],
-            })
+                ]
+            out.append(r)
         return out
 
     def score(self, histories: list[np.ndarray], sites: list[str | None], privacy: str | None = None) -> list[dict]:
         """Risks are calibrated probabilities for the patient's site; alerts use that site's alarm threshold.
         privacy=<epsilon> swaps the sepsis head for the federated model trained with that privacy budget."""
-        F = _last_rows(histories)
+        return self.score_features(_last_rows(histories), sites, privacy)
+
+    def score_features(self, F: np.ndarray, sites: list, privacy: str | None = None, drivers: bool = True) -> list[dict]:
+        """Like score(), for feature rows already built (e.g. every hour of one stay for the timeline)."""
         out = [{} for _ in range(len(F))]
         for head, booster in self.heads.items():
             impute, calibration = self.impute, self.calibration[head]
             if head == "sepsis" and privacy in self.privacy:
                 booster, impute, calibration = self.privacy[privacy]
-            for i, r in enumerate(self._score_head(booster, F, impute, calibration, sites)):
+            for i, r in enumerate(self._score_head(booster, F, impute, calibration, sites, drivers)):
                 out[i][head] = r
         return out
 
