@@ -1,5 +1,6 @@
 """Sepsis early-warning API (runs on LinuxONE). Contract: see DATATHON_GUIDE.md §7."""
 
+import hmac
 import json
 import os
 import time
@@ -15,7 +16,8 @@ from .ward import VITALS, Ward
 API_KEY = os.getenv("API_KEY", "")
 MODEL_VERSION = os.getenv("MODEL_VERSION", "dev")
 
-app = FastAPI(title="Sepsis early warning", version=MODEL_VERSION)
+# No public /docs or /openapi.json: the API contract lives in the repo, not on the open internet.
+app = FastAPI(title="Sepsis early warning", version=MODEL_VERSION, docs_url=None, redoc_url=None, openapi_url=None)
 model = risk_model.load()
 ward = Ward()
 
@@ -23,7 +25,7 @@ ward = Ward()
 def require_key(x_api_key: str = Header(default="")):
     if not API_KEY:
         return
-    if x_api_key != API_KEY:
+    if not hmac.compare_digest(x_api_key.encode(), API_KEY.encode()):
         raise HTTPException(status_code=401, detail="invalid api key")
 
 
