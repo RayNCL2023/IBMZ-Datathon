@@ -1,0 +1,37 @@
+.card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    padding: 1rem;
+    background: var(--d-surface);
+    border: 1px solid var(--d-line);
+    border-radius: var(--d-radius);
+    color: var(--d-fg);
+    transition:
+        border-color 0.15s ease,
+        box-shadow 0.15s ease;
+
+    &:hover {
+        border-color: var(--d-line-strong);
+        box-shadow: var(--d-shadow-sm);
+    }
+
+    // Alerting beds get a status edge on the left; the pill says why.
+    &[data-status="both"],
+    &[data-status="model"] {
+        box-shadow: inset 3px 0 0 var(--edge);
+    }
+
+    &[data-status="both"] {
+        --edge: var(--d-danger);
+    }
+
+    &[data-status="model"] {
+        --edge: var(--d-warn);
+    }
+
+    &[data-status="discharged"] {
+        background: var(--d-sunken);
+    }
+}

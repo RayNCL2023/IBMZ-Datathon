@@ -1,0 +1,113 @@
+.tile {
+    display: flex;
+    flex-direction: column;
+    gap: 0.9rem;
+    padding: 0.9rem 1rem;
+    background: var(--d-surface);
+    border: 1px solid var(--d-line);
+    border-radius: var(--d-radius);
+    color: var(--d-fg);
+    transition: border-color 0.15s ease;
+
+    &:hover {
+        border-color: var(--d-line-strong);
+    }
+
+    &[data-status="both"] {
+        border-color: var(--d-danger-line);
+        background: linear-gradient(var(--d-danger-soft), transparent 40%), var(--d-surface);
+    }
+
+    &[data-status="model"] {
+        border-color: color-mix(in srgb, var(--d-warn) 45%, transparent);
+    }
+
+    &[data-status="discharged"] {
+        opacity: 0.5;
+    }
+}
+
+.bed {
+    font-size: 1.75rem;
+    font-weight: 700;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+    color: var(--d-fg);
+}
+
+.status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: var(--d-muted);
+
+    [data-status="both"] & {
+        color: var(--d-danger-ink);
+    }
+
+    [data-status="model"] & {
+        color: var(--d-warn-ink);
+    }
+}
+
+.heads {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.4rem;
+}
+
+.head {
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 0;
+}
+
+.bar {
+    position: relative;
+    height: 2.25rem;
+    border-radius: 0.25rem;
+    background: var(--d-sunken);
+    box-shadow: inset 0 0 0 1px var(--d-line);
+    overflow: hidden;
+
+    // Vertical fill: height = risk relative to 3× the alarm line; the line itself sits at one third.
+    &::before {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: calc(var(--fill) * 100%);
+        background: color-mix(in srgb, var(--head) 35%, transparent);
+        transition: height 0.4s ease;
+    }
+
+    &::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: calc(100% / 3);
+        border-top: 1px dashed var(--d-muted);
+    }
+
+    [data-alert] &::before {
+        background: var(--head);
+    }
+}
+
+.headLabel {
+    font-size: 0.7rem;
+    color: var(--d-faint);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    [data-alert] & {
+        color: var(--d-fg);
+        font-weight: 650;
+    }
+}

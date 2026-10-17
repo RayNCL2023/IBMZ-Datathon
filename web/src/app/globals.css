@@ -1,39 +1,79 @@
 @import "tailwindcss";
+@import "../styles/designs.css";
 @config "../../tailwind.config.ts";
+
+/* Semantic colour roles. Each design (src/styles/designs.css) fills the --d-* variables; components only ever
+   use these roles (bg-surface, text-muted, border-line, ...), so switching design never touches a component. */
+@theme inline {
+    --color-canvas: var(--d-bg);
+    --color-panel: var(--d-panel);
+    --color-surface: var(--d-surface);
+    --color-sunken: var(--d-sunken);
+    --color-hover: var(--d-hover);
+    --color-line: var(--d-line);
+    --color-line-strong: var(--d-line-strong);
+    --color-fg: var(--d-fg);
+    --color-muted: var(--d-muted);
+    --color-faint: var(--d-faint);
+    --color-accent: var(--d-accent);
+    --color-accent-strong: var(--d-accent-strong);
+    --color-accent-fg: var(--d-accent-fg);
+    --color-accent-soft: var(--d-accent-soft);
+    --color-accent-ink: var(--d-accent-ink);
+    --color-danger: var(--d-danger);
+    --color-danger-ink: var(--d-danger-ink);
+    --color-danger-soft: var(--d-danger-soft);
+    --color-danger-line: var(--d-danger-line);
+    --color-warn: var(--d-warn);
+    --color-warn-ink: var(--d-warn-ink);
+    --color-warn-soft: var(--d-warn-soft);
+    --color-ok: var(--d-ok);
+    --color-ok-ink: var(--d-ok-ink);
+    --color-ok-soft: var(--d-ok-soft);
+    --radius-card: var(--d-radius);
+    --radius-control: var(--d-radius-control);
+    --font-num: var(--d-font-num);
+}
 
 @layer base {
     :root {
-        --spacing: 7rem;
-        --letter-spacing-multiplier: -0.025;
-        --transition: 0.5s ease-in-out;
+        /* Page gutter (NWS1). Not Tailwind's --spacing, which stays at its default for the scale. */
+        --gutter: 2rem;
+        --header-h: 3.5rem;
     }
 
-    @media (width < 1000px) {
+    @media (width < 1024px) {
         :root {
-            --spacing: 5rem;
+            --gutter: 1.25rem;
         }
     }
 
-    @media (width < 800px) {
+    @media (width < 640px) {
         :root {
-            --spacing: 1rem;
+            --gutter: 1rem;
         }
     }
 
     * {
         @apply box-border;
-
-        /* The below is to improve font rendering on macOS */
-        /* Feel free to remove it if you don't need it */
         -webkit-font-smoothing: antialiased;
     }
 
-    body {
-        @apply text-black bg-white grid place-items-center;
+    html {
+        background: var(--d-bg);
+        color-scheme: light;
     }
 
-    [data-theme="dark"] body {
-        @apply bg-black text-white;
+    html[data-theme="dark"] {
+        color-scheme: dark;
+    }
+
+    body {
+        @apply min-h-screen;
+        background: var(--d-bg);
+        color: var(--d-fg);
+        font-size: 1rem;
+        line-height: 1.5;
     }
 
     h1,
@@ -41,60 +81,75 @@
     h3,
     h4,
     h5 {
-        @apply leading-[1.1];
-    }
-
-    h1 {
-        @apply font-[600] text-[4rem] tracking-tight;
-    }
-
-    h2 {
-        @apply font-[600] text-[3rem] tracking-tight;
-    }
-
-    h3 {
-        @apply font-[600] text-[2rem] tracking-tighter;
-    }
-
-    h4 {
-        @apply font-[600] text-[1.5rem] tracking-tight;
-    }
-
-    h5 {
-        @apply font-[600] text-[1.25rem] tracking-tight;
+        @apply leading-[1.2] text-balance;
     }
 
     p {
-        @apply leading-[1.2] font-[500] text-neutral-500 text-[1rem];
+        @apply text-pretty;
     }
 
     a {
-        @apply no-underline text-[var(--primary)];
+        @apply no-underline;
+        color: inherit;
     }
 
     button {
         @apply cursor-pointer outline-none border-0 font-[inherit];
+        color: inherit;
+        background: none;
     }
 
-    input {
-        @apply outline-none font-[inherit];
+    input,
+    select,
+    textarea {
+        @apply font-[inherit];
+        color: inherit;
     }
 
     ::placeholder {
-        @apply text-neutral-500;
+        color: var(--d-faint);
+    }
+
+    /* One visible, consistent keyboard focus across every design. */
+    :focus-visible {
+        outline: 2px solid var(--d-focus);
+        outline-offset: 2px;
+        box-shadow: var(--d-focus-shadow, none);
+    }
+
+    ::selection {
+        background: var(--d-accent-soft);
     }
 }
 
 @layer components {
-    ._nitlix {
-        @apply relative overflow-hidden z-0 w-full flex flex-col justify-center items-center;
+    .font-num {
+        font-variant-numeric: tabular-nums;
     }
 
-    ._nitlix > * {
-        @apply px-[var(--spacing)];
+    .skeleton {
+        background: linear-gradient(90deg, var(--d-sunken), var(--d-hover), var(--d-sunken));
+        background-size: 200% 100%;
+        animation: skeleton 1.4s ease-in-out infinite;
     }
 
-    p.big {
-        @apply font-semibold text-[1.25rem];
+    .page {
+        @apply flex flex-col gap-[1.5rem] w-full max-w-[90rem] mx-auto;
+        padding: 1.5rem var(--gutter) 6rem;
+    }
+}
+
+@keyframes skeleton {
+    to {
+        background-position: -200% 0;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.001ms !important;
+        transition-duration: 0.001ms !important;
     }
 }
