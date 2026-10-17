@@ -1,0 +1,22 @@
+{
+    "name": "bedrock-video",
+    "private": true,
+    "type": "module",
+    "scripts": {
+        "capture": "node --experimental-strip-types capture.ts",
+        "studio": "remotion studio",
+        "render": "remotion render Bedrock out/bedrock-demo.mp4"
+    },
+    "dependencies": {
+        "@remotion/cli": "^4.0.536",
+        "@remotion/renderer": "^4.0.536",
+        "puppeteer-core": "^25.14.0",
+        "react": "19",
+        "react-dom": "19",
+        "remotion": "^4.0.536"
+    },
+    "devDependencies": {
+        "@types/react": "^19.3.0",
+        "typescript": "^7.0.2"
+    }
+}

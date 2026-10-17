@@ -1,0 +1,4 @@
+node_modules/
+out/
+# Regenerate with `python make_audio.py`.
+public/audio/
