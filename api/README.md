@@ -61,3 +61,30 @@ Sepsis head on the 3-core LinuxONE VM. All backends match the XGBoost export wit
 | XGBoost 2.0.3, CPU | 0.212 ms | 0.208 ms | 12.1 ms | 0.82M rows/s |
 
 For these heads (100-575 depth-6 trees) the NNPA path is slower than Snap ML's CPU path. It doesn't offload the CPU either: 85 ms of CPU per 10k rows vs 19 ms. Set `TREE_FORMAT=compress_trees` in `.env` to serve on the CPU.
+
+## Granite SBAR handover (`POST /handover/{patientId}`)
+
+The rules in `app/handover.py` build the SBAR from the data, so it is always correct. Granite 4.0 then writes a short spoken-style summary on the VM (no data leaves it). The `granite` container is built from IBM's LinuxONE image, whose llama.cpp is compiled with zDNN (NNPA) and OpenBLAS. It has no published port, so only the API can reach it.
+
+Each summary is checked in two ways:
+- Every number must appear in the facts.
+- A sentence that names a condition must say "risk", so a predicted risk is never written as a diagnosis.
+
+If either check fails, the summary comes back with `verified: false`, and the UI should fall back to the rule-based SBAR.
+
+One-off model setup on the VM. IBM's image only ships the *base* 350M model, so we use the instruct one, byte-swapped for s390x:
+```bash
+mkdir -p ~/granite && cd ~/granite
+curl -LO https://huggingface.co/ibm-granite/granite-4.0-h-350m-GGUF/resolve/main/granite-4.0-h-350m-bf16.gguf
+mv granite-4.0-h-350m-bf16.gguf granite-4.0-h-350m-bf16-be.gguf
+echo YES | sudo docker run --rm -i -v ~/granite:/m --entrypoint sh registry.linuxone.cloud.marist.edu/l1cc/jupyterlab-image-s390x:latest \
+  -c "pip install -q --target /tmp/g gguf && cd /tmp && PYTHONPATH=/tmp/g /opt/venv/bin/python /tmp/g/gguf/scripts/gguf_convert_endian.py /m/granite-4.0-h-350m-bf16-be.gguf big"
+```
+
+Same 5 patients, 3 shared cores:
+
+| Model | Time per note | Notes |
+|---|---|---|
+| 350M bf16 (default) | ~15 s | Faithful most of the time. Sometimes mixes up which number belongs to what; the checks catch some of this, not all |
+| 1B Q8_0 | 20–75 s | Worse: misattributed risks, truncated output |
+| 3B micro Q4_K_M | 100–140 s | Best wording. Set `GRANITE_FILE=granite-4.0-h-micro-Q4_K_M-be.gguf` in `.env` to use it |

@@ -9,6 +9,17 @@ services:
       THRESHOLD: ${THRESHOLD:-}  # empty = use metrics.json threshold
       TREE_FORMAT: ${TREE_FORMAT:-}  # empty = auto (NNPA); compress_trees = CPU
       MODEL_VERSION: ${MODEL_VERSION:-dev}
+      GRANITE_URL: http://granite:8080
     volumes:
       - ./model:/app/model:ro
       - ${DATA_DIR:-/home/linux1/data/training}:/data:ro
+
+  # Granite LLM for SBAR handover notes. No published port: only the API can reach it.
+  granite:
+    build: ./granite
+    restart: unless-stopped
+    environment:
+      # 350M: ~15 s per note. granite-4.0-h-micro-Q4_K_M-be.gguf (3B) writes better notes but takes ~2 min on 3 cores.
+      GRANITE_MODEL: /models/${GRANITE_FILE:-granite-4.0-h-350m-bf16-be.gguf}
+    volumes:
+      - ${GRANITE_DIR:-/home/linux1/granite}:/models:ro

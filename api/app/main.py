@@ -7,7 +7,7 @@ import time
 from fastapi import Depends, FastAPI, Header, HTTPException
 from pydantic import BaseModel
 
-from . import features
+from . import features, handover
 from . import model as risk_model
 from . import news2
 from .ward import VITALS, Ward
@@ -179,6 +179,27 @@ def patient(patient_id: str, hour: int | None = None, privacy: str | None = None
         "timeline": timeline,
         "drivers": {k: v["drivers"] for k, v in last.items()},
     }
+
+
+_handovers: dict[tuple, dict] = {}
+
+
+@app.post("/handover/{patient_id}", dependencies=[Depends(require_key)])
+def handover_note(patient_id: str, hour: int | None = None, privacy: str | None = None):
+    """SBAR handover note for one ward patient at a replay hour. `sbar` is built by rules from the data;
+    `narrative` is Granite (on LinuxONE, ~15 s) summarising it, with any number not in the facts flagged.
+    Cached per patient, hour and privacy setting."""
+    p = patient(patient_id, hour, privacy)
+    key = (patient_id, p["timeline"][-1]["hour"], privacy)
+    if key in _handovers:
+        return {**_handovers[key], "cached": True}
+
+    _, raw = ward.find(patient_id)
+    sbar = handover.facts(p, raw["rows"][p["timeline"][-1]["hour"]])
+    out = {"patientId": patient_id, "hour": key[1], "sbar": sbar, **handover.narrate(sbar)}
+    if out.get("narrative"):
+        _handovers[key] = out
+    return {**out, "cached": False}
 
 
 @app.get("/ward", dependencies=[Depends(require_key)])

@@ -7,6 +7,7 @@ writes ../api/model/fatigue.json (served by GET /fatigue) and adds "headline" to
   patient's first event (afterwards the patient is already being treated for it).
 - alarmHours: share of bed-hours spent alarming (same denominator), which doesn't reward alarms that stay on.
 - caught: share of patients with the event who got an alarm in the warning window before it.
+- fairness: the deployed alarm vs NEWS2 >= 5 per age band and sex (groups with >= 20 event patients).
 - sepsisUtility: the official PhysioNet/CinC 2019 normalised utility (1 = perfect, 0 = never alarm), threshold
   chosen on validation patients, scored on test patients.
 """
@@ -16,9 +17,11 @@ import os
 
 import numpy as np
 import xgboost as xgb
+from sklearn.metrics import roc_auc_score
 
 from train import DST, NEWS2, SITES, TARGETS, TRAIN_SITES, HERE, features, split_patients
 
+AGE_BANDS = [(0, 50), (50, 65), (65, 80), (80, 200)]
 LEVELS = np.geomspace(0.002, 0.5, 40)  # alarming-row shares to sweep the model threshold over
 
 
@@ -56,6 +59,31 @@ def at(points, x_key, x, y_key):
     xs, ys = [p[x_key] for p in points], [p[y_key] for p in points]
     order = np.argsort(xs)
     return float(np.interp(x, np.array(xs)[order], np.array(ys)[order]))
+
+
+def fairness(raw, news2, operating, X, y, pid, load, window):
+    """Deployed alarm vs NEWS2 >= 5 per age band and sex: share of event patients caught, alarm hours, AUROC."""
+    age, sex = X[:, features.NAMES.index("Age")], X[:, features.NAMES.index("Gender")]
+    groups = {f"age {lo}-{hi - 1}" if hi < 200 else f"age {lo}+": (age >= lo) & (age < hi) for lo, hi in AGE_BANDS}
+    groups |= {"female": sex == 0, "male": sex == 1}
+    out = {}
+    for name, g in groups.items():
+        events = len(np.unique(pid[g & window]))
+        if events < 20:
+            continue
+        _, caught, hours = load_and_catch(operating & g, pid, load & g, window & g)
+        _, n_caught, n_hours = load_and_catch((news2 >= 5) & g, pid, load & g, window & g)
+        lab = g & (y >= 0)
+        out[name] = {
+            "patients": int(len(np.unique(pid[g]))),
+            "eventPatients": events,
+            "modelCaught": caught,
+            "news2Caught": n_caught,
+            "modelAlarmHours": hours,
+            "news2AlarmHours": n_hours,
+            "auroc": round(float(roc_auc_score(y[lab], raw[lab])), 4) if len(np.unique(y[lab])) == 2 else None,
+        }
+    return out
 
 
 def utility(alert, y, pid, hour):
@@ -126,7 +154,11 @@ def main():
             "operating": {"threshold": cal["global"]["threshold"], "alertsPerBedDay": per_day, "alarmHours": hours, "caught": caught},
             "patients": int(len(np.unique(p))),
             "eventPatients": int(len(np.unique(p[window]))),
+            "fairness": fairness(raw, news2, operating, Xr, y, p, load, window),
         }
+        for g, r in fatigue[target]["fairness"].items():
+            print(f"   {g:10} caught {r['modelCaught']:.1%} (NEWS2 {r['news2Caught']:.1%})  alarm hours {r['modelAlarmHours']:.1%} "
+                  f"(NEWS2 {r['news2AlarmHours']:.1%})  AUROC {r['auroc']}  n_events {r['eventPatients']}")
 
         n5 = next(pt for pt in news2_pts if pt["cutoff"] == 5)
         model_caught = at(model_pts, "alertsPerBedDay", n5["alertsPerBedDay"], "caught")
