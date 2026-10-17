@@ -3,7 +3,7 @@
 import Brand from "@/components/(shell)/Brand";
 import NavLinks from "@/components/(shell)/NavLinks";
 import BedList from "@/components/(shell)/BedList";
-import { SearchButton, SettingsButton, SourcePill, ThemeToggle } from "@/components/(shell)/ShellTools";
+import { SearchButton, SettingsButton, SoundToggle, SourcePill, ThemeToggle } from "@/components/(shell)/ShellTools";
 
 // Sidebar content, shared by the desktop rail and the mobile menu drawer.
 export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
@@ -20,6 +20,7 @@ export function SidebarContent({ onNavigate }: { onNavigate?: () => void }) {
             <div className="flex flex-row items-center justify-between gap-[.5rem] pt-[.75rem] border-t-[1px] border-line">
                 <SourcePill />
                 <div className="flex flex-row">
+                    <SoundToggle />
                     <ThemeToggle />
                     <SettingsButton />
                 </div>

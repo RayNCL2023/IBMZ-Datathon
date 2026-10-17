@@ -7,6 +7,7 @@ import { HEADS } from "@/lib/api/types";
 import { HEAD_META, HOSPITAL_NAMES } from "@/var/clinical";
 import { flags } from "@/var/flags";
 import { useReplay } from "@/contexts/ReplayContext";
+import { useDesign } from "@/contexts/DesignContext";
 import Card from "@/components/(ui)/Card";
 import PillBase from "@/components/(ui)/PillBase";
 import StatusPill from "@/components/(ui)/StatusPill";
@@ -28,6 +29,7 @@ export default function ({ patientId, variant = "page" }: { patientId: string; v
     const { hour, privacy, groundTruth } = useReplay();
     const { data: p, error, reload } = useApi(`patient:${patientId}:${hour}:${privacy ?? ""}`, (api) => api.patient(patientId, hour, privacy));
     const whatIf = useWhatIf();
+    const { advanced } = useDesign();
 
     if (error && !p) {
         return (
@@ -75,7 +77,7 @@ export default function ({ patientId, variant = "page" }: { patientId: string; v
                         {groundTruth && p.sepsisOnset !== null && <StatusPill tone="danger">Sepsis onset at hour {p.sepsisOnset} (label)</StatusPill>}
                     </div>
                 </div>
-                {flags.whatIf && (
+                {flags.whatIf && advanced && (
                     <ButtonSecondary onClick={() => whatIf({ ...now.vitals }, p.hospital)}>
                         <LuFlaskConical size={16} /> What-if from current vitals
                     </ButtonSecondary>
@@ -88,9 +90,9 @@ export default function ({ patientId, variant = "page" }: { patientId: string; v
                 ))}
             </div>
 
-            <EarlyWarning patient={p} />
-
             <RiskTimeline patient={p} />
+
+            <EarlyWarning patient={p} />
 
             <div className="grid grid-cols-1 xl:grid-cols-2 gap-[1rem]">
                 <Card title="Risk now" description="Each bar is scaled to three times that head's own alarm line (the tick).">

@@ -31,7 +31,8 @@ export default function ({ patientId, hour }: { patientId: string; hour: number 
     const [busy, setBusy] = useState(false);
     const [elapsed, setElapsed] = useState(0);
 
-    // A note belongs to one replay hour; moving the clock makes it stale.
+    // A note belongs to one replay hour; moving the clock makes it stale. The API caches one note per patient,
+    // hour and model, so writing again for the same hour would return the identical note: no regenerate button.
     const stale = note !== null && note.hour !== hour;
 
     useEffect(() => {
@@ -88,10 +89,12 @@ export default function ({ patientId, hour }: { patientId: string; hour: number 
                             <LuCopy size={16} /> Copy SBAR
                         </ButtonSecondary>
                     )}
-                    <ButtonPrimary onClick={generate} disabled={busy} aria-busy={busy}>
-                        <LuSparkles size={16} />
-                        {busy ? `Writing… ${elapsed}s` : note ? `Regenerate for hour ${hour}` : `Write handover for hour ${hour}`}
-                    </ButtonPrimary>
+                    {(!note || stale || busy) && (
+                        <ButtonPrimary onClick={generate} disabled={busy} aria-busy={busy}>
+                            <LuSparkles size={16} />
+                            {busy ? `Writing… ${elapsed}s` : stale ? `Update to hour ${hour}` : `Write handover for hour ${hour}`}
+                        </ButtonPrimary>
+                    )}
                 </>
             }
         >

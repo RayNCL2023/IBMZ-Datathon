@@ -9,7 +9,7 @@ import NavLinks from "@/components/(shell)/NavLinks";
 import IconButton from "@/components/(buttons)/IconButton";
 import ModalPrimary from "@/components/(modals)/ModalPrimary";
 import { SidebarContent } from "@/components/(shell)/Sidebar";
-import { SearchButton, SettingsButton, SourcePill, ThemeToggle } from "@/components/(shell)/ShellTools";
+import { SearchButton, SettingsButton, SoundToggle, SourcePill, ThemeToggle } from "@/components/(shell)/ShellTools";
 
 // Sidebar designs: a slim bar on small screens only. Clinical (nav: "top"): the main navigation bar at every size.
 export default function () {
@@ -42,6 +42,7 @@ export default function () {
                     <SourcePill />
                 </div>
                 <SearchButton wide={false} />
+                <SoundToggle />
                 <ThemeToggle />
                 <SettingsButton />
                 <IconButton label="Open menu" onClick={openMenu} className="lg:hidden">

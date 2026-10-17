@@ -24,7 +24,7 @@ function Palette({ close }: { close: () => void }) {
     const router = useRouter();
     const { beds } = useWard();
     const replay = useReplay();
-    const { design, setDesign } = useDesign();
+    const { design, setDesign, advanced } = useDesign();
     const peek = usePatientPeek();
     const whatIf = useWhatIf();
     const shortcuts = useShortcuts();
@@ -41,7 +41,7 @@ function Palette({ close }: { close: () => void }) {
                 icon: LuBedDouble,
                 run: () => peek(b.patientId),
             })),
-            ...NAV.map((n) => ({ id: `nav-${n.href}`, group: "Pages", label: n.label, hint: n.description, icon: n.icon, run: () => router.push(n.href) })),
+            ...NAV.filter((n) => advanced || !n.advanced).map((n) => ({ id: `nav-${n.href}`, group: "Pages", label: n.label, hint: n.description, icon: n.icon, run: () => router.push(n.href) })),
             {
                 id: "replay",
                 group: "Replay",
@@ -52,7 +52,7 @@ function Palette({ close }: { close: () => void }) {
             },
             { id: "shortcuts", group: "Help", label: "Keyboard shortcuts", icon: LuKeyboard, run: shortcuts },
         ];
-        if (flags.whatIf) {
+        if (flags.whatIf && advanced) {
             list.push({ id: "what-if", group: "Tools", label: "What-if scoring", hint: "Score custom observations", icon: LuFlaskConical, run: () => whatIf() });
         }
         if (flags.designSwitcher) {
@@ -64,7 +64,7 @@ function Palette({ close }: { close: () => void }) {
             }
         }
         return list;
-    }, [beds, replay, design, setDesign, peek, whatIf, shortcuts, router]);
+    }, [beds, replay, design, setDesign, advanced, peek, whatIf, shortcuts, router]);
 
     const q = query.trim().toLowerCase();
     const results = q ? commands.filter((c) => `${c.label} ${c.hint ?? ""} ${c.group}`.toLowerCase().includes(q)) : commands;

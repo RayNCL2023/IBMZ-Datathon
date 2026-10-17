@@ -27,6 +27,7 @@ function useGlobalShortcuts() {
     const palette = useCommandPalette();
     const shortcuts = useShortcuts();
     const whatIf = useWhatIf();
+    const { advanced } = useDesign();
 
     useEffect(() => {
         function onKey(e: KeyboardEvent) {
@@ -52,13 +53,13 @@ function useGlobalShortcuts() {
                 shortcuts();
                 return;
             }
-            if (e.key.toLowerCase() === "w" && flags.whatIf) {
+            if (e.key.toLowerCase() === "w" && flags.whatIf && advanced) {
                 whatIf();
             }
         }
         document.addEventListener("keydown", onKey);
         return () => document.removeEventListener("keydown", onKey);
-    }, [replay, isOpen, palette, shortcuts, whatIf]);
+    }, [replay, isOpen, palette, shortcuts, whatIf, advanced]);
 }
 
 // Layout per design: sidebar (Ward, Night) or top navigation bar (Clinical). The replay bar stays sticky.

@@ -29,6 +29,10 @@ export const flags = {
     dataSource: (process.env.NEXT_PUBLIC_DATA_SOURCE === "live" ? "live" : "mock") as DataSource,
     // Allows switching data source at runtime from settings (useful when the VM is unreachable mid-demo).
     dataSourceSwitcher: bool(process.env.NEXT_PUBLIC_DATA_SOURCE_SWITCHER, true),
+    // Lets users turn on advanced mode in settings (federated privacy models, LinuxONE system page, data source).
+    advancedToggle: bool(process.env.NEXT_PUBLIC_ADVANCED_TOGGLE, true),
+    // Audible alarm cues for new high and medium priority alarms.
+    audio: bool(process.env.NEXT_PUBLIC_AUDIO, true),
     // Shows the retrospective PhysioNet sepsis label on beds. Demo only: never available on a real ward.
     groundTruth: bool(process.env.NEXT_PUBLIC_GROUND_TRUTH, true),
     // Toasts when a bed newly crosses an alarm line during replay.

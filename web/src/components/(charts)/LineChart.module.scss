@@ -26,41 +26,67 @@
     font-variant-numeric: tabular-nums;
 }
 
+.zone {
+    fill: var(--d-danger);
+    opacity: 0.07;
+}
+
 .ref {
     stroke: var(--d-danger);
-    stroke-width: 1;
-    stroke-dasharray: 2 3;
+    stroke-width: 2;
 }
 
-.refLabel {
-    fill: var(--d-danger-ink);
-    font-size: 0.72rem;
-    font-weight: 600;
+.refPill {
+    rect {
+        fill: var(--d-danger);
+    }
+
+    text {
+        fill: #fff;
+        font-size: 0.72rem;
+        font-weight: 700;
+    }
 }
 
-.marker {
-    line {
-        stroke: var(--d-faint);
+.markerLine {
+    stroke: var(--d-faint);
+    stroke-width: 1.5;
+    stroke-dasharray: 4 3;
+
+    &[data-tone="accent"] {
+        stroke: var(--d-accent);
+        stroke-dasharray: none;
+    }
+
+    &[data-tone="danger"] {
+        stroke: var(--d-danger);
+        stroke-dasharray: none;
+    }
+}
+
+.markerPill {
+    rect {
+        fill: var(--d-surface);
+        stroke: var(--d-line-strong);
         stroke-width: 1;
-        stroke-dasharray: 3 3;
     }
 
     text {
         fill: var(--d-muted);
         font-size: 0.72rem;
-        font-weight: 600;
+        font-weight: 650;
     }
 
-    &[data-tone="accent"] line {
+    &[data-tone="accent"] rect {
         stroke: var(--d-accent);
-        stroke-dasharray: none;
     }
 
     &[data-tone="accent"] text {
         fill: var(--d-accent-ink);
     }
 
-    &[data-tone="danger"] line {
+    &[data-tone="danger"] rect {
+        fill: var(--d-danger-soft);
         stroke: var(--d-danger);
     }
 

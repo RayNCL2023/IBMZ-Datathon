@@ -2,7 +2,7 @@ import { metaGen } from "nitlix-metagen";
 import WardClient from "@/components/(ward)/WardClient";
 
 export const metadata = metaGen({
-    title: "Ward | Vigil",
+    title: "Ward | Bedrock",
     description: "Twelve ICU beds replayed hour by hour with five risk heads and NEWS2.",
 });
 

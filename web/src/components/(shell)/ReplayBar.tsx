@@ -5,6 +5,7 @@ import { twMerge } from "tailwind-merge";
 import { SPEEDS, useReplay } from "@/contexts/ReplayContext";
 import { useWard } from "@/contexts/WardContext";
 import { useApi } from "@/lib/api/useApi";
+import { useDesign } from "@/contexts/DesignContext";
 import IconButton from "@/components/(buttons)/IconButton";
 import Segmented from "@/components/(ui)/Segmented";
 import s from "./ReplayBar.module.scss";
@@ -14,7 +15,8 @@ import s from "./ReplayBar.module.scss";
 export default function ({ className }: { className?: string }) {
     const r = useReplay();
     const { loading } = useWard();
-    const { data: privacy } = useApi("privacy", (api) => api.privacy());
+    const { advanced } = useDesign();
+    const { data: privacy } = useApi(advanced ? "privacy" : null, (api) => api.privacy());
     const options = privacy?.options ?? [];
 
     return (
@@ -61,7 +63,7 @@ export default function ({ className }: { className?: string }) {
                     onChange={r.setSpeed}
                     options={SPEEDS.map((sp) => ({ value: sp.value, label: sp.label, title: `${sp.ms / 1000} s per hour` }))}
                 />
-                {options.length > 0 && (
+                {advanced && options.length > 0 && (
                     <label className={s.select}>
                         <span>Sepsis model</span>
                         <select value={r.privacy ?? ""} onChange={(e) => r.setPrivacy(e.target.value || null)}>

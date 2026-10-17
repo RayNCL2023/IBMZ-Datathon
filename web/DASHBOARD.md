@@ -1,4 +1,4 @@
-# Vigil dashboard
+# Bedrock dashboard
 
 Frontend for the LinuxONE early-warning API (`../api`). Ward board of the API's 12 demo beds, patient view with risk timeline, drivers and Granite SBAR handover, plus model performance, federated learning and system pages.
 
@@ -21,6 +21,8 @@ bun run dev                  # http://localhost:3000
 | `NEXT_PUBLIC_GROUND_TRUTH` | `true` / `false` | Allows revealing the retrospective sepsis label |
 | `NEXT_PUBLIC_ALERT_TOASTS` | `true` / `false` | Toast when a bed newly crosses an alarm line during replay |
 | `NEXT_PUBLIC_HANDOVER` | `true` / `false` | Granite SBAR panel |
+| `NEXT_PUBLIC_ADVANCED_TOGGLE` | `true` / `false` | Advanced mode in settings: privacy models, Federated and System pages, what-if, data source |
+| `NEXT_PUBLIC_AUDIO` | `true` / `false` | Alarm sound toggle (high: 3+2 pulses, medium: 3 pulses) |
 | `NEXT_PUBLIC_WHAT_IF` | `true` / `false` | What-if scoring modal (`/predict` + `/news2`) |
 
 The three designs share one token contract (`src/styles/designs.css`). Components only use semantic classes (`bg-surface`, `text-muted`, `border-line`), so a design never touches a component. Each design also picks a navigation (sidebar or top bar) and a default ward layout (cards, table or tiles).

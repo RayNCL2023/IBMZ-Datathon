@@ -6,6 +6,7 @@ import { HEADS } from "@/lib/api/types";
 import { HEAD_META } from "@/var/clinical";
 import { filterBeds, type FilterKey, type SortKey } from "@/lib/ward";
 import Segmented from "@/components/(ui)/Segmented";
+import { useDesign } from "@/contexts/DesignContext";
 
 export type WardLayout = "cards" | "table" | "tiles";
 
@@ -42,6 +43,7 @@ export default function ({
     layout: WardLayout;
     setLayout: (l: WardLayout) => void;
 }) {
+    const { advanced } = useDesign();
     const count = (f: FilterKey) => filterBeds(beds, f).length;
     return (
         <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-[.75rem]">
@@ -69,6 +71,7 @@ export default function ({
                         { value: "bed", label: "Bed" },
                     ]}
                 />
+                {advanced && (
                 <Segmented
                     label="Layout"
                     value={layout}
@@ -79,6 +82,7 @@ export default function ({
                         { value: "tiles", label: "Tiles" },
                     ]}
                 />
+                )}
             </div>
         </div>
     );

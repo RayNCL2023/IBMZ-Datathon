@@ -4,7 +4,7 @@ import PatientPage from "@/components/(patient)/PatientPage";
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
     return metaGen({
-        title: `Patient ${id} | Vigil`,
+        title: `Patient ${id} | Bedrock`,
         description: `Risk timeline, drivers, observations and SBAR handover for patient ${id}.`,
     });
 }

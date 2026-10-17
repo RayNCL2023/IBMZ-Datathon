@@ -17,11 +17,36 @@ export type Series = {
     step?: boolean;
 };
 
-export type RefLine = { y: number; label: string };
+// zone: shade the area above the line (the alarm zone).
+export type RefLine = { y: number; label: string; zone?: boolean };
 export type Marker = { x: number; label: string; tone?: "accent" | "danger" | "muted" };
 export type Dot = { x: number; y: number; label: string; color: string };
 
 const PAD = { top: 14, right: 16, bottom: 28, left: 44 };
+
+// Pill labels are measured roughly (no DOM measuring) so they can be laid out before paint.
+const labelWidth = (text: string) => text.length * 6.4 + 14;
+const ROW = 20;
+
+// Assigns each marker label a row so labels that would overlap stack instead of colliding.
+function layoutMarkers(markers: Marker[], sx: (x: number) => number, right: number) {
+    const rowsEnd: number[] = [];
+    return [...markers]
+        .sort((a, b) => a.x - b.x)
+        .map((m) => {
+            const w = labelWidth(m.label);
+            const x = sx(m.x);
+            const flip = x + 4 + w > right;
+            const start = flip ? x - 4 - w : x + 4;
+            let row = rowsEnd.findIndex((end) => end + 6 < start);
+            if (row < 0) {
+                row = rowsEnd.length;
+                rowsEnd.push(0);
+            }
+            rowsEnd[row] = start + w;
+            return { m, x, start, w, row };
+        });
+}
 
 function path(points: Point[], sx: (x: number) => number, sy: (y: number) => number, step?: boolean) {
     let d = "";
@@ -151,24 +176,16 @@ export default function ({
                     ))}
                     <line x1={PAD.left} x2={width - PAD.right} y1={sy(y0)} y2={sy(y0)} className={s.axis} />
 
-                    {refLines.map((r) => (
-                        <g key={`r${r.label}`}>
-                            <line x1={PAD.left} x2={width - PAD.right} y1={sy(r.y)} y2={sy(r.y)} className={s.ref} />
-                            <text x={width - PAD.right} y={sy(r.y) - 5} textAnchor="end" className={s.refLabel}>
-                                {r.label}
-                            </text>
-                        </g>
-                    ))}
+                    {refLines
+                        .filter((r) => r.zone)
+                        .map((r) => (
+                            <rect key={`z${r.label}`} x={PAD.left} y={PAD.top} width={innerW} height={Math.max(0, sy(r.y) - PAD.top)} className={s.zone} />
+                        ))}
 
                     {markers
                         .filter((m) => m.x >= x0 && m.x <= x1)
                         .map((m) => (
-                            <g key={`m${m.label}${m.x}`} data-tone={m.tone ?? "muted"} className={s.marker}>
-                                <line x1={sx(m.x)} x2={sx(m.x)} y1={PAD.top} y2={height - PAD.bottom} />
-                                <text x={sx(m.x) + 4} y={PAD.top + 8}>
-                                    {m.label}
-                                </text>
-                            </g>
+                            <line key={`ml${m.label}${m.x}`} data-tone={m.tone ?? "muted"} className={s.markerLine} x1={sx(m.x)} x2={sx(m.x)} y1={PAD.top} y2={height - PAD.bottom} />
                         ))}
 
                     {visible.map((sr) => (
@@ -185,6 +202,38 @@ export default function ({
                         <circle key={d.label} cx={sx(d.x)} cy={sy(d.y)} r={5} fill={d.color} className={s.dot}>
                             <title>{d.label}</title>
                         </circle>
+                    ))}
+
+                    {refLines.map((r) => (
+                        <line key={`r${r.label}`} x1={PAD.left} x2={width - PAD.right} y1={sy(r.y)} y2={sy(r.y)} className={s.ref} />
+                    ))}
+
+                    {/* Labels last, so no line is ever drawn over them. */}
+                    {refLines.map((r) => {
+                        const w = labelWidth(r.label);
+                        const above = sy(r.y) - 22 >= PAD.top;
+                        const y = above ? sy(r.y) - 22 : sy(r.y) + 4;
+                        return (
+                            <g key={`rl${r.label}`} className={s.refPill}>
+                                <rect x={width - PAD.right - w} y={y} width={w} height={18} rx={9} />
+                                <text x={width - PAD.right - w / 2} y={y + 9} textAnchor="middle" dominantBaseline="central">
+                                    {r.label}
+                                </text>
+                            </g>
+                        );
+                    })}
+
+                    {layoutMarkers(
+                        markers.filter((m) => m.x >= x0 && m.x <= x1),
+                        sx,
+                        width - PAD.right,
+                    ).map(({ m, start, w, row }) => (
+                        <g key={`mp${m.label}${m.x}`} data-tone={m.tone ?? "muted"} className={s.markerPill}>
+                            <rect x={start} y={PAD.top + 2 + row * ROW} width={w} height={18} rx={4} />
+                            <text x={start + w / 2} y={PAD.top + 11 + row * ROW} textAnchor="middle" dominantBaseline="central">
+                                {m.label}
+                            </text>
+                        </g>
                     ))}
 
                     {hoverX !== null && (

@@ -4,13 +4,15 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { twMerge } from "tailwind-merge";
 import { NAV, isActive } from "@/var/nav";
+import { useDesign } from "@/contexts/DesignContext";
 
 // Same links in the sidebar (vertical) and the Clinical top bar (horizontal).
 export default function ({ direction = "column", onNavigate }: { direction?: "column" | "row"; onNavigate?: () => void }) {
     const pathname = usePathname() ?? "/";
+    const { advanced } = useDesign();
     return (
         <nav aria-label="Main" className={twMerge("flex gap-[.15rem]", direction === "column" ? "flex-col" : "flex-row flex-wrap")}>
-            {NAV.map(({ href, label, icon: Icon }) => {
+            {NAV.filter((n) => advanced || !n.advanced).map(({ href, label, icon: Icon }) => {
                 const active = isActive(pathname, href);
                 return (
                     <Link

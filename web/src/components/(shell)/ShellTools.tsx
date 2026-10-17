@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { useTheme } from "next-themes";
-import { LuMoon, LuSearch, LuSettings2, LuSun } from "react-icons/lu";
+import { LuMoon, LuSearch, LuSettings2, LuSun, LuVolume2, LuVolumeX } from "react-icons/lu";
+import { useSound } from "@/contexts/SoundContext";
 import { useDesign } from "@/contexts/DesignContext";
 import IconButton from "@/components/(buttons)/IconButton";
 import StatusPill from "@/components/(ui)/StatusPill";
@@ -48,6 +49,24 @@ export function ThemeToggle() {
     return (
         <IconButton label={dark ? "Switch to light mode" : "Switch to dark mode"} onClick={() => setTheme(dark ? "light" : "dark")}>
             {dark ? <LuSun size={18} /> : <LuMoon size={18} />}
+        </IconButton>
+    );
+}
+
+// Alarm sound on/off. Enabling is a click, which also unlocks browser audio and plays a short test cue.
+export function SoundToggle() {
+    const { available, enabled, setEnabled } = useSound();
+    if (!available) {
+        return null;
+    }
+    return (
+        <IconButton
+            label={enabled ? "Mute alarm sounds" : "Turn on alarm sounds"}
+            aria-pressed={enabled}
+            onClick={() => setEnabled(!enabled)}
+            className={enabled ? "text-accent" : undefined}
+        >
+            {enabled ? <LuVolume2 size={18} /> : <LuVolumeX size={18} />}
         </IconButton>
     );
 }

@@ -58,7 +58,10 @@ export default function ({ patient: p }: { patient: PatientResponse }) {
                             xDomain={[0, Math.max(last, 6)]}
                             yDomain={[0, Math.max(10, ...news2.points.map((pt) => pt.y))]}
                             xFormat={(x) => `${x}h`}
-                            refLines={[{ y: 5, label: "Urgent (5)" }]}
+                            refLines={[
+                                { y: 5, label: "5 urgent review", zone: true },
+                                { y: 7, label: "7 emergency" },
+                            ]}
                         />
                     </div>
                     {PANELS.map((panel) => (

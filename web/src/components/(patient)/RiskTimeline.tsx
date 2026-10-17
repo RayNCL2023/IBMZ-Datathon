@@ -61,7 +61,7 @@ export default function ({ patient: p }: { patient: PatientResponse }) {
                 xLabel="Hour"
                 xFormat={(x) => `${x}h`}
                 yFormat={(y) => (mode === "relative" ? `${y.toFixed(1)}×` : `${y.toFixed(y < 10 ? 1 : 0)}%`)}
-                refLines={mode === "relative" ? [{ y: 1, label: "Alarm line" }] : []}
+                refLines={mode === "relative" ? [{ y: 1, label: "Alarm line 1×", zone: true }] : []}
                 markers={markers}
             />
         </Card>

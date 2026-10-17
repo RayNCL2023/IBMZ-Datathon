@@ -54,7 +54,7 @@ function DesignPreview({ id }: { id: DesignId }) {
 }
 
 function Settings({ close }: { close: () => void }) {
-    const { design, setDesign, dataSource, setDataSource } = useDesign();
+    const { design, setDesign, dataSource, setDataSource, advanced, setAdvanced } = useDesign();
     const { theme, setTheme } = useTheme();
     const replay = useReplay();
     const { push } = useToast();
@@ -113,7 +113,25 @@ function Settings({ close }: { close: () => void }) {
                         />
                     </Row>
                 )}
-                {flags.dataSourceSwitcher && (
+                {flags.advancedToggle && (
+                    <Row title="Advanced mode" description="Adds the federated privacy models, the LinuxONE system page, layout and data source controls. Off keeps the clinical screens simple.">
+                        <Segmented
+                            label="Advanced mode"
+                            value={advanced ? "on" : "off"}
+                            onChange={(v) => {
+                                setAdvanced(v === "on");
+                                if (v === "off") {
+                                    replay.setPrivacy(null);
+                                }
+                            }}
+                            options={[
+                                { value: "off", label: "Off" },
+                                { value: "on", label: "On" },
+                            ]}
+                        />
+                    </Row>
+                )}
+                {advanced && flags.dataSourceSwitcher && (
                     <Row title="Data source" description="Live calls the LinuxONE API through this site's server. Demo data works offline with the same shapes.">
                         <Segmented
                             label="Data source"

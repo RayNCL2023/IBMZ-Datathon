@@ -8,6 +8,7 @@ import { storage } from "@/lib/storage";
 
 export const DESIGN_KEY = "lx.design";
 const SOURCE_KEY = "lx.source";
+const ADVANCED_KEY = "lx.advanced";
 
 type DesignContextType = {
     design: DesignId;
@@ -15,6 +16,9 @@ type DesignContextType = {
     setDesign: (id: DesignId) => void;
     dataSource: DataSource;
     setDataSource: (source: DataSource) => void;
+    // Advanced mode: federated privacy models, LinuxONE system page, data source and layout controls.
+    advanced: boolean;
+    setAdvanced: (on: boolean) => void;
     api: Api;
 };
 
@@ -23,6 +27,7 @@ const DesignContext = createContext<DesignContextType>(null as never);
 export function DesignProvider({ children }: { children: React.ReactNode }) {
     const [design, setDesignState] = useState<DesignId>(flags.design);
     const [dataSource, setSourceState] = useState<DataSource>(flags.dataSource);
+    const [advanced, setAdvancedState] = useState(false);
 
     // Runtime overrides only exist while their switcher flag is on.
     useEffect(() => {
@@ -33,6 +38,9 @@ export function DesignProvider({ children }: { children: React.ReactNode }) {
         const savedSource = storage.get(SOURCE_KEY) as DataSource | null;
         if (flags.dataSourceSwitcher && (savedSource === "mock" || savedSource === "live")) {
             setSourceState(savedSource);
+        }
+        if (flags.advancedToggle && storage.get(ADVANCED_KEY) === "on") {
+            setAdvancedState(true);
         }
     }, []);
 
@@ -56,11 +64,19 @@ export function DesignProvider({ children }: { children: React.ReactNode }) {
         setSourceState(source);
     }, []);
 
+    const setAdvanced = useCallback((on: boolean) => {
+        if (!flags.advancedToggle) {
+            return;
+        }
+        storage.set(ADVANCED_KEY, on ? "on" : "off");
+        setAdvancedState(on);
+    }, []);
+
     const api = useMemo(() => createApi(dataSource), [dataSource]);
     const config = DESIGNS[design];
 
     return (
-        <DesignContext.Provider value={{ design, config, setDesign, dataSource, setDataSource, api }}>
+        <DesignContext.Provider value={{ design, config, setDesign, dataSource, setDataSource, advanced, setAdvanced, api }}>
             <ThemeProvider attribute="data-theme" defaultTheme="system" enableSystem forcedTheme={config.forcedMode}>
                 {children}
             </ThemeProvider>

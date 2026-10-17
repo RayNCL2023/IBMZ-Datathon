@@ -6,6 +6,7 @@ import { HEAD_META } from "@/var/clinical";
 import { flags } from "@/var/flags";
 import { pct } from "@/lib/format";
 import { alertingHeads } from "@/lib/ward";
+import { useSound } from "@/contexts/SoundContext";
 import { useWard } from "@/contexts/WardContext";
 import { useToast } from "@/contexts/ToastContext";
 import { usePatientPeek } from "@/components/(patient)/usePatientPeek";
@@ -16,6 +17,7 @@ export default function () {
     const { data } = useWard();
     const { push } = useToast();
     const peek = usePatientPeek();
+    const { alarm } = useSound();
     const previous = useRef<{ hour: number; privacy: string | null; alerts: Map<string, Set<Head>> } | null>(null);
 
     useEffect(() => {
@@ -32,6 +34,13 @@ export default function () {
         const fresh = data.beds
             .filter((b) => !b.discharged)
             .flatMap((b) => alertingHeads(b).filter((h) => !prev.alerts.get(b.patientId)?.has(h)).map((head) => ({ bed: b, head })));
+        if (!fresh.length) {
+            return;
+        }
+        // One cue per hour. High priority: sepsis or mortality, or the model and NEWS2 alarming together.
+        const high = fresh.some(({ bed, head }) => head === "sepsis" || head === "mortality" || bed.news2Alert);
+        alarm(high ? "high" : "medium");
+
         for (const { bed, head } of fresh.slice(0, 3)) {
             push({
                 tone: head === "sepsis" || head === "mortality" ? "danger" : "warning",
@@ -44,7 +53,7 @@ export default function () {
         if (fresh.length > 3) {
             push({ tone: "warning", title: `${fresh.length - 3} more new alarms this hour`, description: "They are sorted to the top of the ward." });
         }
-    }, [data, push, peek]);
+    }, [data, push, peek, alarm]);
 
     return null;
 }
