@@ -201,6 +201,24 @@ def load_resp_fio2(raw):
     return hourly(r, "respchartoffset", ["FiO2_resp"])
 
 
+def load_nurse_temp(raw):
+    """Most eICU temperatures are nurse-charted, not in vitalPeriodic. Hourly median in degrees C."""
+    n = pd.read_csv(
+        os.path.join(raw, "nurseCharting.csv.gz"),
+        usecols=["patientunitstayid", "nursingchartoffset", "nursingchartcelltypevallabel",
+                 "nursingchartcelltypevalname", "nursingchartvalue"],
+    )
+    n = n[(n["nursingchartcelltypevallabel"] == "Temperature")
+          & n["nursingchartcelltypevalname"].isin(["Temperature (C)", "Temperature (F)"])].copy()
+    n["Temp_nurse"] = pd.to_numeric(n["nursingchartvalue"], errors="coerce")
+    is_f = n["nursingchartcelltypevalname"] == "Temperature (F)"
+    n.loc[is_f, "Temp_nurse"] = (n.loc[is_f, "Temp_nurse"] - 32) / 1.8
+    n["Temp_nurse"], n_f = f_to_c(n["Temp_nurse"])  # Fahrenheit values charted under the (C) label
+    n.loc[(n["Temp_nurse"] < 25) | (n["Temp_nurse"] > 45), "Temp_nurse"] = np.nan
+    print("nurseCharting: %d temperature values (%d F->C by value)" % (n["Temp_nurse"].notna().sum(), n_f))
+    return hourly(n, "nursingchartoffset", ["Temp_nurse"])
+
+
 URINE_INCLUDE = (r"urine|urinary|foley|void|urethral catheter|straight catheter|nephrostomy|"
                  r"urostomy|ileal conduit|suprapubic")
 # Mentions urine but is not a urine volume in mL: event counts, mixed with stool, GI tubes.
@@ -265,10 +283,12 @@ def main(raw, out):
     dyn = dyn.join(load_labs(raw), how="outer")
     dyn = dyn.join(load_resp_fio2(raw), how="outer")
     dyn = dyn.join(load_urine(raw), how="outer")
+    dyn = dyn.join(load_nurse_temp(raw), how="outer")
     # Lab FiO2 preferred (measured with the blood gas), charted ventilator FiO2 as fallback.
     dyn["FiO2"] = dyn["FiO2"].fillna(dyn["FiO2_resp"])
-    dyn["Temp"] = dyn["Temp"].fillna(dyn["Temp_lab"])
-    dyn = dyn.drop(columns=["FiO2_resp", "Temp_lab"])
+    # Temperature: continuous probe, then nurse-charted, then the blood-gas lab value.
+    dyn["Temp"] = dyn["Temp"].fillna(dyn["Temp_nurse"]).fillna(dyn["Temp_lab"])
+    dyn = dyn.drop(columns=["FiO2_resp", "Temp_lab", "Temp_nurse"])
     dyn_by_stay = {sid: g.droplevel(0) for sid, g in dyn.groupby(level=0)}
 
     psv_dir = os.path.join(out, "training_setC")
