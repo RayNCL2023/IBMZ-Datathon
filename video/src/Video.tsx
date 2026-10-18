@@ -5,6 +5,7 @@ import { FiveRisks, Hook, INTRO_DURATIONS, Title } from "./scenes/Intro";
 import { Alarms, Granite, PRODUCT_DURATIONS, Patient, Ward } from "./scenes/Product";
 import { Architecture, Auroc, Details, End, Evidence, Fairness, PROOF_DURATIONS } from "./scenes/Proof";
 import { DEEP_DURATIONS, Federated, History } from "./scenes/Deep";
+import { INSTANCE_FRAMES, Instance } from "./scenes/Instance";
 
 // Scene order and lengths (frames at 30 fps). make_audio.py places its cues from the same timeline.
 export const TIMELINE = [
@@ -21,6 +22,7 @@ export const TIMELINE = [
     { name: "auroc", frames: PROOF_DURATIONS.auroc, C: Auroc },
     { name: "fairness", frames: PROOF_DURATIONS.fairness, C: Fairness },
     { name: "federated", frames: DEEP_DURATIONS.federated, C: Federated },
+    { name: "instance", frames: INSTANCE_FRAMES, C: Instance },
     { name: "architecture", frames: PROOF_DURATIONS.architecture, C: Architecture },
     { name: "end", frames: PROOF_DURATIONS.end, C: End },
 ];

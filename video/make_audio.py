@@ -10,7 +10,7 @@ import wave
 import numpy as np
 
 SR = 48_000
-DUR = 147.0
+DUR = 155.0
 N = int(SR * DUR)
 t = np.arange(N) / SR
 rng = np.random.default_rng(2026)
@@ -19,7 +19,7 @@ rng = np.random.default_rng(2026)
 SCENES = [
     ("hook", 240), ("title", 165), ("risks", 330), ("ward", 300), ("alarms", 195), ("patient", 270), ("history", 225),
     ("granite", 510), ("evidence", 360), ("details", 300), ("auroc", 270), ("fairness", 300), ("federated", 360),
-    ("arch", 390), ("end", 195),
+    ("instance", 210), ("arch", 390), ("end", 225),
 ]
 FRAMES = [f for _, f in SCENES]
 STARTS = np.concatenate([[0], np.cumsum(FRAMES)[:-1]]) / 30

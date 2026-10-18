@@ -44,7 +44,7 @@ export function Ward() {
     ];
     return (
         <Scene>
-            <Side title="The whole ward at a glance" body="Twelve real ICU stays, replayed hour by hour and scored live on LinuxONE." />
+            <Side title="The whole ward at a glance" body="For ICU nurses and outreach teams: twelve real ICU stays, replayed hour by hour and scored live on LinuxONE." />
             <ScreenSequence srcs={WARD} every={37} keys={keys} frameBox={BOX}>
                 {(map, scale) => (
                     <>
@@ -141,7 +141,7 @@ export function Granite() {
         <Scene>
             <SideSwap
                 at={255}
-                a={{ title: "Granite 4.0 on IBM's AI accelerator", body: "IBM Granite runs on LinuxONE through llama.cpp built with zDNN for the Integrated Accelerator for AI, and writes a spoken SBAR handover." }}
+                a={{ title: "Predictive + generative AI", body: "Hybrid, multi-model AI: five predictive models feed IBM Granite 4.0, running on the Integrated Accelerator for AI through zDNN, which writes the SBAR handover." }}
                 b={{ title: "Checked before it is shown", body: "Every number must match the record. If Granite states a risk as a diagnosis, Bedrock holds it back." }}
             />
             <Sequence durationInFrames={255} layout="none">

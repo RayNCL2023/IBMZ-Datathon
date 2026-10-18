@@ -112,7 +112,8 @@ export function Title() {
                 </div>
                 <Words text="Bedrock" start={38} size={132} weight={700} style={{ justifyContent: "center", letterSpacing: "-0.04em" }} />
                 <Words text="Real-time AI for critical decisions" start={58} size={46} weight={550} color={C.accent} style={{ justifyContent: "center" }} />
-                <Words text="ICU early warning, built end to end on IBM LinuxONE and IBM Z AI acceleration" start={78} size={30} weight={450} color={C.muted} stagger={1.5} style={{ justifyContent: "center" }} />
+                <Words text="Detect. Decide. Respond." start={74} size={34} weight={600} style={{ justifyContent: "center" }} />
+                <Words text="AI for Good: ICU early warning, built end to end on IBM LinuxONE" start={90} size={30} weight={450} color={C.muted} stagger={1.5} style={{ justifyContent: "center" }} />
             </AbsoluteFill>
         </Scene>
     );
@@ -165,7 +166,7 @@ export function FiveRisks() {
         <Scene>
             <div style={{ position: "absolute", left: 120, top: 110 }}>
                 <Words text="Five predictions. Every bed. Every hour." start={6} size={70} />
-                <Words text="Bed 01 at hour 24 of the live replay" start={30} size={28} weight={450} color={C.muted} style={{ marginTop: 16 }} />
+                <Words text="Trained on 1.49 million patient-hours from three ICU datasets. Shown: Bed 01 at hour 24 of the live replay." start={30} size={28} weight={450} color={C.muted} stagger={1.2} style={{ marginTop: 16 }} />
             </div>
             <div style={{ position: "absolute", left: 120, right: 120, top: 360, display: "flex", justifyContent: "space-between" }}>
                 {HEADS.map((h, i) => (

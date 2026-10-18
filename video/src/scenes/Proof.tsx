@@ -323,12 +323,12 @@ const EDGES: [string, string][] = [
 
 // IBM Z capabilities Bedrock uses (see api/README.md, fed/README.md).
 const BADGES: [string, string][] = [
-    ["IBM Integrated Accelerator for AI", "On-chip AI inference, used by Granite through zDNN"],
-    ["IBM Snap ML", "Risk models benchmarked on the accelerator and the CPU, served on the fastest path"],
-    ["IBM Granite 4.0", "Instruct model converted to big-endian for s390x"],
-    ["Federated training on LinuxONE", "25 rounds across isolated hospital containers"],
-    ["CPACF crypto", "TLS for every request runs on the CPU's crypto accelerator"],
-    ["Data never leaves", "Patient data, models and the LLM stay on one machine"],
+    ["IBM Integrated Accelerator for AI", "Granite 4.0 inference on-chip through zDNN, big-endian build for s390x"],
+    ["Hybrid AI, multi-model", "Five IBM Snap ML predictive models plus Granite generative AI"],
+    ["Containerised", "Docker Compose: API, Granite, HTTPS gateway and isolated hospital nodes"],
+    ["Secure by design", "TLS on CPACF crypto, hashed API keys, no exposed model ports"],
+    ["Scales on 3 cores", "1.6 million risk scores per second with IBM Snap ML on LinuxONE"],
+    ["Federated and private", "25 training rounds on LinuxONE with differential privacy"],
 ];
 
 function Badge({ title, sub, start }: { title: string; sub: string; start: number }) {
@@ -451,13 +451,16 @@ export function End() {
                 <Words text="Bedrock" start={20} size={120} weight={700} style={{ justifyContent: "center", letterSpacing: "-0.04em" }} />
                 <Words text="See deterioration coming." start={36} size={50} weight={550} color={C.accent} style={{ justifyContent: "center" }} />
                 <div style={{ marginTop: 30, opacity: tween(frame, 60, 80, 0, 1), fontSize: 28, color: C.muted, textAlign: "center", lineHeight: 1.5 }}>
-                    Real-time AI for critical decisions
+                    Real-time AI for critical decisions. Detect. Decide. Respond.
                     <br />
-                    IBM Z Datathon 2026
+                    AI for Good, IBM Z Datathon 2026
+                </div>
+                <div style={{ position: "absolute", bottom: 60, left: 0, right: 0, opacity: tween(frame, 80, 100, 0, 1), fontSize: 22, color: C.faint, textAlign: "center" }}>
+                    Open source on IBM LinuxONE: XGBoost, IBM Snap ML, IBM Granite, llama.cpp, FastAPI, scikit-learn, Next.js. Data: PhysioNet 2019, PhysioNet 2012, eICU.
                 </div>
             </AbsoluteFill>
         </Scene>
     );
 }
 
-export const PROOF_DURATIONS = { evidence: 360, details: 300, auroc: 270, fairness: 300, architecture: 390, end: 195 };
+export const PROOF_DURATIONS = { evidence: 360, details: 300, auroc: 270, fairness: 300, architecture: 390, end: 225 };
