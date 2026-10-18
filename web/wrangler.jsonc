@@ -1,10 +1,15 @@
 {
     "$schema": "node_modules/wrangler/config-schema.json",
-    "name": "nnt-siteworker",
+    "name": "ibmz2026",
+    "account_id": "2193fd4da537b6010890e3c67a9673cd",
     "main": "vinext/server/app-router-entry",
     "compatibility_date": "2026-05-15",
     "compatibility_flags": ["nodejs_compat"],
     "keep_vars": true,
+    "routes": [{ "pattern": "ibmz2026.nitlix.com", "custom_domain": true }],
+    "observability": {
+        "enabled": true,
+    },
     "assets": {
         "not_found_handling": "none",
     },

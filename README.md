@@ -13,6 +13,8 @@ Everything runs on an **IBM LinuxONE** virtual machine (s390x):
 
 > Research prototype built on de-identified public data. **Not a medical device** and not for clinical use.
 
+**Live demo: [ibmz2026.nitlix.com](https://ibmz2026.nitlix.com)** (dashboard on Cloudflare Workers, scoring live on the LinuxONE VM)
+
 ---
 
 ## Contents
