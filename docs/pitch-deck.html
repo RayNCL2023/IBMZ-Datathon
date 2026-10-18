@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Bedrock Pitch Deck</title>
+<style>
+@font-face { font-family: "Instrument Sans"; src: url("../video/public/fonts/InstrumentSans-Variable.woff2") format("woff2"); font-weight: 400 700; }
+:root {
+    --bg: #121212; --panel: #191919; --surface: #1f1f1f; --sunken: #252525; --line: #2e2e2e; --line-strong: #3b3b3b;
+    --fg: #ebebea; --muted: #a5a5a2; --faint: #7c7c79;
+    --accent: #4c95ea; --accent-soft: rgba(76,149,234,0.16);
+    --danger: #e05252; --danger-ink: #ff958c; --warn: #f0b429; --ok: #2fbf6c; --ok-ink: #6bd99a;
+    --sepsis: #3987e5; --hypo: #d95926; --aki: #199e70; --resp: #c98500; --mort: #d55181;
+}
+@page { size: 1920px 1080px; margin: 0; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { background: var(--bg); color: var(--fg); font-family: "Instrument Sans", system-ui, sans-serif; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.slide { width: 1920px; height: 1080px; padding: 96px 120px; position: relative; overflow: hidden; page-break-after: always; break-after: page; display: flex; flex-direction: column; }
+.slide:last-child { page-break-after: auto; break-after: auto; }
+.kicker { font-size: 22px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent); margin-bottom: 22px; }
+h1 { font-size: 112px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+h2 { font-size: 64px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.08; max-width: 1500px; }
+h3 { font-size: 30px; font-weight: 600; margin-bottom: 12px; }
+p, li { font-size: 28px; line-height: 1.45; color: var(--muted); }
+.lede { font-size: 34px; line-height: 1.4; color: var(--muted); max-width: 1400px; margin-top: 28px; }
+b, strong { color: var(--fg); font-weight: 600; }
+.foot { position: absolute; left: 120px; right: 120px; bottom: 48px; display: flex; justify-content: space-between; font-size: 18px; color: var(--faint); }
+.foot .brand { display: flex; align-items: center; gap: 12px; color: var(--muted); font-weight: 600; }
+.grow { flex: 1; }
+.row { display: flex; gap: 40px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 22px; padding: 40px; }
+.stat { font-size: 104px; font-weight: 700; letter-spacing: -0.03em; line-height: 1; }
+.stat small { font-size: 44px; font-weight: 600; }
+.label { font-size: 24px; color: var(--muted); margin-top: 14px; line-height: 1.35; }
+.shot { border-radius: 18px; border: 1px solid var(--line-strong); box-shadow: 0 30px 80px rgba(0,0,0,0.55); display: block; }
+.pill { display: inline-flex; align-items: center; gap: 10px; padding: 10px 20px; border-radius: 999px; border: 1px solid var(--line-strong); font-size: 22px; color: var(--muted); }
+.dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; }
+ul.clean { list-style: none; }
+ul.clean li { padding-left: 34px; position: relative; margin-bottom: 14px; }
+ul.clean li::before { content: ""; position: absolute; left: 0; top: 16px; width: 12px; height: 12px; border-radius: 3px; background: var(--accent); }
+table { border-collapse: collapse; width: 100%; font-size: 24px; }
+th { text-align: left; color: var(--faint); font-weight: 500; padding: 12px 16px; border-bottom: 1px solid var(--line-strong); font-size: 20px; text-transform: uppercase; letter-spacing: 0.06em; }
+td { padding: 14px 16px; border-bottom: 1px solid var(--line); color: var(--muted); }
+td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+tr.hi td { color: var(--fg); font-weight: 600; background: var(--accent-soft); }
+.tag { font-size: 18px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.1em; }
+.ok { color: var(--ok-ink); }
+.danger { color: var(--danger-ink); }
+</style>
+</head>
+<body>
+
+<!-- Change TEAM_NAME here: the guidelines require the team name in the project title. -->
+
+<!-- 1. Cover -->
+<section class="slide" style="justify-content: center;">
+    <svg width="120" height="120" viewBox="0 0 30 30" style="margin-bottom: 56px">
+        <rect x="1" y="1" width="28" height="28" rx="5" fill="none" stroke="#ebebea" stroke-width="2" />
+        <path d="M1 15h10M19 15h10M15 1v8M15 21v8" stroke="#ebebea" stroke-width="2" />
+        <circle cx="15" cy="15" r="3.5" fill="#4c95ea" />
+    </svg>
+    <h1>Bedrock</h1>
+    <p class="lede" style="font-size: 44px; color: var(--fg); margin-top: 36px; max-width: 1500px;">Real-time ICU early warning on IBM LinuxONE. It catches more deteriorating patients with fewer alarms, and patient data never leaves the machine.</p>
+    <div class="row" style="gap: 16px; margin-top: 64px;">
+        <span class="pill"><span class="dot" style="background: var(--accent)"></span>Theme: Real-time AI for critical decisions</span>
+        <span class="pill"><span class="dot" style="background: var(--ok)"></span>with AI secured: innovation without exposure</span>
+    </div>
+    <div class="foot"><span>[TEAM_NAME]_IBM Z Datathon 2026 Project</span><span>Event code SSF2026</span></div>
+</section>
+
+<!-- 2. Problem -->
+<section class="slide">
+    <div class="kicker">The problem</div>
+    <h2>ICU nurses face too many alarms, and the alarms still miss patients who are getting worse.</h2>
+    <p class="lede">Wards score deterioration with NEWS2, a points table from vital signs. It looks at one moment, it fires constantly, and it misses a large share of patients who go on to deteriorate. Staff learn to tune alarms out.</p>
+    <div class="grow"></div>
+    <div class="row">
+        <div class="card" style="flex: 1">
+            <div class="stat danger">1.81</div>
+            <div class="label">NEWS2 ≥ 5 alerts <b>per bed per day</b></div>
+        </div>
+        <div class="card" style="flex: 1">
+            <div class="stat danger">30<small>%</small></div>
+            <div class="label">of patients who develop sepsis get <b>no warning</b> from NEWS2 before it starts</div>
+        </div>
+        <div class="card" style="flex: 1">
+            <div class="stat">6,053</div>
+            <div class="label">held-out ICU stays we measured this on, <b>449</b> of them developed sepsis</div>
+        </div>
+    </div>
+    <p style="font-size: 22px; color: var(--faint); margin-top: 28px;">Data: PhysioNet/CinC Challenge 2019 (hospitals A, B), PhysioNet 2012 (M), eICU Collaborative Research demo (C, external validation). De-identified research data.</p>
+    <div class="foot"><span class="brand">Bedrock</span><span>2</span></div>
+</section>
+
+<!-- 3. Solution -->
+<section class="slide">
+    <div class="kicker">The solution</div>
+    <h2>Five risks per bed, every hour, ranked so the sickest patient is always at the top.</h2>
+    <div class="row" style="margin-top: 64px; gap: 24px;">
+        <div class="card" style="flex: 1; border-top: 6px solid var(--sepsis)"><h3>Sepsis</h3><p>next 6 h</p></div>
+        <div class="card" style="flex: 1; border-top: 6px solid var(--hypo)"><h3>Hypotension</h3><p>next 6 h</p></div>
+        <div class="card" style="flex: 1; border-top: 6px solid var(--aki)"><h3>Acute kidney injury</h3><p>next 24 h</p></div>
+        <div class="card" style="flex: 1; border-top: 6px solid var(--resp)"><h3>Respiratory failure</h3><p>next 6 h</p></div>
+        <div class="card" style="flex: 1; border-top: 6px solid var(--mort)"><h3>Mortality</h3><p>this stay</p></div>
+    </div>
+    <div class="row" style="margin-top: 56px; gap: 64px;">
+        <ul class="clean" style="flex: 1">
+            <li><b>Five XGBoost heads</b> served with Snap ML on LinuxONE, sharing one 107-feature pass per bed.</li>
+            <li><b>Fair alarm lines:</b> each head's threshold raises the same number of alarms as NEWS2 ≥ 5, so every comparison is like for like.</li>
+        </ul>
+        <ul class="clean" style="flex: 1">
+            <li><b>Explained:</b> every alarm shows its main drivers, and Granite 4.0 writes a checked SBAR handover.</li>
+            <li><b>Built for the ward:</b> nurse station alarms with acknowledgement and escalation, a simple and an analytical view, and a shift summary.</li>
+        </ul>
+    </div>
+    <div class="foot"><span class="brand">Bedrock</span><span>3</span></div>
+</section>
+
+<!-- 4. Product: ward -->
+<section class="slide" style="padding-bottom: 0;">
+    <div class="kicker">Demo · live on LinuxONE</div>
+    <h2 style="font-size: 52px">The ward board: real held-out ICU stays replayed hour by hour.</h2>
+    <img class="shot" src="../video/public/capture/ward-alarms.png" style="width: 1680px; margin-top: 44px;">
+</section>
+
+<!-- 5. Results -->
+<section class="slide">
+    <div class="kicker">Results on held-out patients</div>
+    <h2>Same catch rate as NEWS2 with 78% fewer alarms.</h2>
+    <div class="row" style="margin-top: 56px; gap: 56px; align-items: stretch;">
+        <div style="flex: 1.15">
+            <h3 style="margin-bottom: 28px">AUROC: Bedrock vs NEWS2</h3>
+            <div id="auroc"></div>
+            <div class="row" style="gap: 32px; margin-top: 24px; font-size: 22px; color: var(--muted)">
+                <span><span class="dot" style="background: var(--accent); border-radius: 3px"></span> Bedrock</span>
+                <span><span class="dot" style="background: var(--line-strong); border-radius: 3px"></span> NEWS2</span>
+            </div>
+        </div>
+        <div style="flex: 1; display: flex; flex-direction: column; gap: 28px;">
+            <div class="card">
+                <div class="tag">Same catch rate (70%)</div>
+                <div class="stat ok" style="margin-top: 16px">0.39 <small style="color: var(--muted)">vs 1.81</small></div>
+                <div class="label">alerts per bed per day: <b>78% fewer alarms</b></div>
+            </div>
+            <div class="card">
+                <div class="tag">Same alarm budget (1.81 per bed-day)</div>
+                <div class="stat ok" style="margin-top: 16px">95% <small style="color: var(--muted)">vs 70%</small></div>
+                <div class="label">of patients who develop sepsis are warned before onset</div>
+            </div>
+        </div>
+    </div>
+    <p style="font-size: 22px; color: var(--faint); margin-top: auto; margin-bottom: 40px;">Sepsis head, 6,053 held-out stays, 449 with events. All heads also validated on an external hospital (eICU) they never trained on.</p>
+    <div class="foot"><span class="brand">Bedrock</span><span>5</span></div>
+</section>
+
+<!-- 6. Granite -->
+<section class="slide">
+    <div class="kicker">Generative AI, kept honest</div>
+    <h2>Granite 4.0 writes the handover on LinuxONE, and we check it before anyone reads it.</h2>
+    <div class="row" style="margin-top: 48px; gap: 48px; align-items: flex-start;">
+        <div style="flex: 1.35">
+            <img class="shot" src="../video/public/capture/handover.png" style="width: 100%; height: 560px; object-fit: cover; object-position: top;">
+        </div>
+        <div style="flex: 1">
+            <ul class="clean">
+                <li><b>Rules build the facts</b> (SBAR: situation, background, assessment, recommendation) straight from the data, so they are always right.</li>
+                <li><b>Granite writes</b> a short spoken summary with llama.cpp built for zDNN, in a container with no published port.</li>
+                <li><b>Two checks:</b> every number must appear in the facts, and a predicted risk may never be written as a diagnosis.</li>
+                <li>If a check fails, the summary is <b>held back</b> and the rule-based text is shown. The same pipeline writes a <b>ward shift summary</b> over the last n hours.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="foot"><span class="brand">Bedrock</span><span>6</span></div>
+</section>
+
+<!-- 7. Federated -->
+<section class="slide">
+    <div class="kicker">AI secured · innovation without exposure</div>
+    <h2>Hospitals train one model together without sharing a single patient record.</h2>
+    <div class="row" style="margin-top: 52px; gap: 56px;">
+        <div style="flex: 1">
+            <ul class="clean">
+                <li>Each hospital runs in its <b>own container on LinuxONE</b>, mounting only its own data, read-only, on an internal network with no internet.</li>
+                <li>The model travels between hospitals (cyclic federated XGBoost). Each adds trees on its own patients and passes it on.</li>
+                <li>A <b>privacy dial</b> adds Laplace noise to every new leaf (differential privacy) before the model leaves the building.</li>
+                <li>The coordinator only ever sees models, held-out metrics and feature medians.</li>
+            </ul>
+        </div>
+        <div style="flex: 1">
+            <table>
+                <tr><th>Sepsis model</th><th class="num">Hosp. A</th><th class="num">Hosp. B</th><th class="num">Mean AUROC</th></tr>
+                <tr><td>A's data alone</td><td class="num">0.829</td><td class="num danger">0.760</td><td class="num">0.795</td></tr>
+                <tr><td>B's data alone</td><td class="num">0.785</td><td class="num">0.876</td><td class="num">0.830</td></tr>
+                <tr class="hi"><td>Federated</td><td class="num">0.817</td><td class="num">0.867</td><td class="num">0.842</td></tr>
+                <tr><td>Federated, ε = 1</td><td class="num">0.808</td><td class="num">0.867</td><td class="num">0.837</td></tr>
+                <tr><td>Federated, ε = 0.3</td><td class="num">0.775</td><td class="num">0.796</td><td class="num">0.785</td></tr>
+                <tr><td>Pooled data (not allowed in reality)</td><td class="num">0.827</td><td class="num">0.871</td><td class="num">0.848</td></tr>
+            </table>
+            <p style="font-size: 22px; margin-top: 22px;">A model from one hospital drops on another's patients. The federated one works for both and gets within 0.006 of pooling the data.</p>
+        </div>
+    </div>
+    <div class="foot"><span class="brand">Bedrock</span><span>7</span></div>
+</section>
+
+<!-- 8. Architecture -->
+<section class="slide">
+    <div class="kicker">Technical design on IBM LinuxONE (s390x)</div>
+    <h2>Everything runs on one LinuxONE Community Cloud VM.</h2>
+    <svg viewBox="0 0 1680 600" width="1680" height="600" style="margin-top: 48px" font-family="Instrument Sans, sans-serif">
+        <defs>
+            <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto"><path d="M0 0L10 5L0 10z" fill="#7c7c79"/></marker>
+        </defs>
+        <!-- Browser -->
+        <rect x="0" y="210" width="250" height="150" rx="16" fill="#1f1f1f" stroke="#3b3b3b" stroke-width="2"/>
+        <text x="125" y="268" fill="#ebebea" font-size="26" font-weight="600" text-anchor="middle">Bedrock web</text>
+        <text x="125" y="302" fill="#a5a5a2" font-size="20" text-anchor="middle">Next.js ward app</text>
+        <text x="125" y="330" fill="#a5a5a2" font-size="20" text-anchor="middle">key kept server-side</text>
+        <line x1="250" y1="285" x2="340" y2="285" stroke="#7c7c79" stroke-width="2" marker-end="url(#ar)"/>
+        <text x="295" y="272" fill="#7c7c79" font-size="17" text-anchor="middle">HTTPS</text>
+        <!-- VM boundary -->
+        <rect x="345" y="10" width="1330" height="580" rx="24" fill="none" stroke="#4c95ea" stroke-width="2" stroke-dasharray="8 8"/>
+        <text x="375" y="52" fill="#4c95ea" font-size="22" font-weight="600">IBM LinuxONE VM · s390x · Docker Compose · patient data stays here</text>
+        <!-- Caddy -->
+        <rect x="380" y="210" width="250" height="150" rx="16" fill="#1f1f1f" stroke="#3b3b3b" stroke-width="2"/>
+        <text x="505" y="262" fill="#ebebea" font-size="26" font-weight="600" text-anchor="middle">Caddy</text>
+        <text x="505" y="296" fill="#a5a5a2" font-size="20" text-anchor="middle">Let's Encrypt TLS</text>
+        <text x="505" y="324" fill="#a5a5a2" font-size="20" text-anchor="middle">crypto on CPACF</text>
+        <line x1="630" y1="285" x2="710" y2="285" stroke="#7c7c79" stroke-width="2" marker-end="url(#ar)"/>
+        <!-- API -->
+        <rect x="715" y="120" width="420" height="330" rx="16" fill="#1f1f1f" stroke="#4c95ea" stroke-width="2"/>
+        <text x="925" y="170" fill="#ebebea" font-size="26" font-weight="600" text-anchor="middle">FastAPI</text>
+        <text x="925" y="204" fill="#a5a5a2" font-size="20" text-anchor="middle">hashed API keys (SQLite), fail closed</text>
+        <rect x="745" y="230" width="360" height="90" rx="12" fill="#252525"/>
+        <text x="925" y="268" fill="#ebebea" font-size="22" font-weight="600" text-anchor="middle">Snap ML · 5 XGBoost heads</text>
+        <text x="925" y="298" fill="#a5a5a2" font-size="19" text-anchor="middle">NNPA (zDNN) or compressed-tree CPU</text>
+        <rect x="745" y="336" width="360" height="90" rx="12" fill="#252525"/>
+        <text x="925" y="374" fill="#ebebea" font-size="22" font-weight="600" text-anchor="middle">NEWS2 · ward replay · SBAR rules</text>
+        <text x="925" y="404" fill="#a5a5a2" font-size="19" text-anchor="middle">same feature code as training</text>
+        <!-- Granite -->
+        <line x1="1135" y1="200" x2="1220" y2="150" stroke="#7c7c79" stroke-width="2" marker-end="url(#ar)"/>
+        <rect x="1225" y="80" width="420" height="150" rx="16" fill="#1f1f1f" stroke="#3b3b3b" stroke-width="2"/>
+        <text x="1435" y="132" fill="#ebebea" font-size="26" font-weight="600" text-anchor="middle">Granite 4.0 (350M)</text>
+        <text x="1435" y="166" fill="#a5a5a2" font-size="20" text-anchor="middle">llama.cpp with zDNN + OpenBLAS</text>
+        <text x="1435" y="194" fill="#a5a5a2" font-size="20" text-anchor="middle">no published port</text>
+        <!-- Fed -->
+        <line x1="1220" y1="420" x2="1135" y2="380" stroke="#7c7c79" stroke-width="2" marker-end="url(#ar)"/>
+        <rect x="1225" y="330" width="420" height="230" rx="16" fill="#1f1f1f" stroke="#3b3b3b" stroke-width="2"/>
+        <text x="1435" y="378" fill="#ebebea" font-size="26" font-weight="600" text-anchor="middle">Federated training</text>
+        <text x="1435" y="410" fill="#a5a5a2" font-size="20" text-anchor="middle">internal network, no internet</text>
+        <rect x="1250" y="436" width="115" height="96" rx="10" fill="#252525"/><text x="1307" y="492" fill="#ebebea" font-size="20" text-anchor="middle">Hosp. A</text>
+        <rect x="1377" y="436" width="115" height="96" rx="10" fill="#252525"/><text x="1434" y="492" fill="#ebebea" font-size="20" text-anchor="middle">Hosp. B</text>
+        <rect x="1504" y="436" width="115" height="96" rx="10" fill="#252525"/><text x="1561" y="492" fill="#ebebea" font-size="20" text-anchor="middle">Hosp. M</text>
+        <text x="925" y="500" fill="#7c7c79" font-size="19" text-anchor="middle">API port closed in iptables · only Caddy reaches it</text>
+    </svg>
+    <div class="foot"><span class="brand">Bedrock</span><span>8</span></div>
+</section>
+
+<!-- 9. Platform evidence -->
+<section class="slide">
+    <div class="kicker">Using the platform, and measuring it</div>
+    <h2>We benchmarked the AI accelerator instead of assuming it helps.</h2>
+    <div class="row" style="margin-top: 52px; gap: 56px;">
+        <div style="flex: 1.1">
+            <table>
+                <tr><th>Sepsis head, 3-core VM</th><th class="num">1 row</th><th class="num">Ward (12)</th><th class="num">10k rows</th></tr>
+                <tr><td>Snap ML, NNPA (zDNN tensors)</td><td class="num">0.089 ms</td><td class="num">0.143 ms</td><td class="num">30.7 ms</td></tr>
+                <tr class="hi"><td>Snap ML, CPU (compressed trees)</td><td class="num">0.013 ms</td><td class="num">0.043 ms</td><td class="num">5.8 ms</td></tr>
+                <tr><td>XGBoost 2.0.3, CPU</td><td class="num">0.212 ms</td><td class="num">0.208 ms</td><td class="num">12.1 ms</td></tr>
+            </table>
+            <p style="font-size: 22px; margin-top: 22px;">All backends match the trained model within 5e-7. A whole ward is scored in well under a millisecond, so alarms are truly real time.</p>
+        </div>
+        <div style="flex: 1">
+            <ul class="clean">
+                <li><b>Snap ML</b> serves the trees; for our 100–575 depth-6 trees its CPU path beat NNPA, so we serve on CPU and keep NNPA one setting away.</li>
+                <li><b>zDNN on NNPA</b> runs Granite's llama.cpp for the handover text.</li>
+                <li><b>CPACF</b> handles the TLS crypto.</li>
+                <li><b>Containers</b> isolate each hospital, the model and the API, with no published ports except HTTPS. Granite runs byte-swapped for big-endian s390x.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="row" style="margin-top: auto;">
+        <div class="card" style="flex: 1; padding: 26px 36px"><div class="stat" style="font-size: 64px">0.043 <small>ms</small></div><div class="label">to score a whole 12-bed ward</div></div>
+        <div class="card" style="flex: 1; padding: 26px 36px"><div class="stat" style="font-size: 64px">1.7<small>M rows/s</small></div><div class="label">throughput on 3 shared cores</div></div>
+        <div class="card" style="flex: 1; padding: 26px 36px"><div class="stat" style="font-size: 64px">~15 <small>s</small></div><div class="label">per Granite handover, generated on the VM</div></div>
+    </div>
+    <div class="foot"><span class="brand">Bedrock</span><span>9</span></div>
+</section>
+
+<!-- 10. Impact -->
+<section class="slide">
+    <div class="kicker">Value to the community</div>
+    <h2>Who benefits, and what it takes to get there.</h2>
+    <div class="row" style="margin-top: 56px; gap: 40px;">
+        <div class="card" style="flex: 1">
+            <h3>Patients</h3>
+            <p>Earlier warning of sepsis, low blood pressure, kidney injury and breathing failure, when treatment works best.</p>
+        </div>
+        <div class="card" style="flex: 1">
+            <h3>Nurses and doctors</h3>
+            <p>Fewer false alarms, a ranked ward, and a handover that is written for them and checked before they see it.</p>
+        </div>
+        <div class="card" style="flex: 1">
+            <h3>Hospitals</h3>
+            <p>Better models from shared learning without moving patient data, on hardware built for regulated, always-on work.</p>
+        </div>
+    </div>
+    <div class="row" style="margin-top: 48px; gap: 64px;">
+        <div style="flex: 1">
+            <h3>Honest limits</h3>
+            <ul class="clean">
+                <li>Retrospective research data, not a clinical trial. Decision support only: clinicians confirm.</li>
+                <li>Per-tree ε adds up across trees, so the privacy dial shows the trade-off, not a certified guarantee.</li>
+            </ul>
+        </div>
+        <div style="flex: 1">
+            <h3>Next steps</h3>
+            <ul class="clean">
+                <li>Live HL7/FHIR vitals feed, SSO and per-user audit for a real trust.</li>
+                <li>Prospective silent trial on one ward, then more hospitals in the federation.</li>
+            </ul>
+        </div>
+    </div>
+    <div class="foot"><span class="brand">Bedrock</span><span>10</span></div>
+</section>
+
+<!-- 11. Close -->
+<section class="slide">
+    <div class="kicker">Built during the IBM Z Datathon, 17–18 October 2026</div>
+    <h2>Bedrock: earlier warnings, fewer alarms, no data exposed.</h2>
+    <div class="row" style="margin-top: 56px; gap: 56px;">
+        <div style="flex: 1">
+            <h3>Links</h3>
+            <p>Code: <b>github.com/RayNCL2023/IBMZ-Datathon</b></p>
+            <p>Live API: <b>148-100-78-203.sslip.io</b> (LinuxONE Community Cloud)</p>
+            <h3 style="margin-top: 40px">Data</h3>
+            <p>PhysioNet/CinC Challenge 2019 · PhysioNet/CinC Challenge 2012 · eICU Collaborative Research Database demo (physionet.org)</p>
+        </div>
+        <div style="flex: 1">
+            <h3>Open source we built on</h3>
+            <p style="font-size: 24px">IBM Snap ML · XGBoost · scikit-learn · NumPy · pandas · FastAPI · Uvicorn · IBM Granite 4.0 · llama.cpp (zDNN build, IBM LinuxONE image) · gguf · Caddy · Docker · React · Next.js App Router on Vinext/Vite · Tailwind CSS · Remotion · Instrument Sans</p>
+        </div>
+    </div>
+    <div class="foot"><span>[TEAM_NAME]_IBM Z Datathon 2026 Project</span><span>11</span></div>
+</section>
+
+<script>
+const heads = [
+    ["Sepsis", 0.8436, 0.6751, "#3987e5"],
+    ["Hypotension", 0.8696, 0.5942, "#d95926"],
+    ["Kidney injury", 0.8137, 0.5703, "#199e70"],
+    ["Resp. failure", 0.863, 0.7147, "#c98500"],
+    ["Mortality", 0.7964, 0.5982, "#d55181"],
+];
+const lo = 0.5, hi = 0.9, W = 640;
+const x = v => ((v - lo) / (hi - lo)) * W;
+document.getElementById("auroc").innerHTML = heads.map(([n, m, b]) => `
+    <div style="display:flex; align-items:center; gap:24px; margin-bottom:26px">
+        <div style="width:200px; font-size:24px; color:var(--fg)">${n}</div>
+        <div style="flex:1">
+            <div style="display:flex; align-items:center; gap:14px"><div style="height:30px; width:${x(m)}px; background:var(--accent); border-radius:0 6px 6px 0"></div><span style="font-size:24px; font-weight:600">${m.toFixed(2)}</span></div>
+            <div style="display:flex; align-items:center; gap:14px; margin-top:6px"><div style="height:18px; width:${x(b)}px; background:var(--line-strong); border-radius:0 5px 5px 0"></div><span style="font-size:20px; color:var(--faint)">${b.toFixed(2)}</span></div>
+        </div>
+    </div>`).join("") + `<div style="font-size:18px; color:var(--faint); margin-left:224px">axis starts at 0.50 (chance)</div>`;
+</script>
+</body>
+</html>
