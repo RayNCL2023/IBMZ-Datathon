@@ -2,6 +2,8 @@
 
 **IBM Z Datathon 2026 · Theme: Real-time AI for Critical Decisions** (with privacy work from *AI Secured: Innovation Without Exposure*) · Event code `SSF2026`
 
+▶️ **Demo video:** https://www.youtube.com/watch?v=FK_NFn7KHJk
+
 Bedrock watches every bed in an ICU and warns nurses **hours before** a patient deteriorates. Five machine learning models score each patient every hour for five risks: sepsis, low blood pressure (hypotension), acute kidney injury, respiratory failure and in-hospital death. Each risk is compared with **NEWS2**, the bedside early-warning score UK hospitals use today. With each model set to raise the same number of alarms as NEWS2, Bedrock warns about more of these events on held-out patients.
 
 Everything runs on an **IBM LinuxONE** virtual machine (s390x):
