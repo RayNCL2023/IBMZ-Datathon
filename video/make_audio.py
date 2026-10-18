@@ -10,15 +10,21 @@ import wave
 import numpy as np
 
 SR = 48_000
-DUR = 120.0
+DUR = 147.0
 N = int(SR * DUR)
 t = np.arange(N) / SR
 rng = np.random.default_rng(2026)
 
-# Scene starts in seconds (frames / 30): hook, title, risks, ward, alarms, patient, granite, evidence, arch, end.
-FRAMES = [300, 210, 390, 390, 210, 330, 600, 600, 360, 210]
+# Scene starts in seconds (frames / 30), same order and lengths as src/Video.tsx.
+SCENES = [
+    ("hook", 240), ("title", 165), ("risks", 330), ("ward", 300), ("alarms", 195), ("patient", 270), ("history", 225),
+    ("granite", 510), ("evidence", 360), ("details", 300), ("auroc", 270), ("fairness", 300), ("federated", 360),
+    ("arch", 390), ("end", 195),
+]
+FRAMES = [f for _, f in SCENES]
 STARTS = np.concatenate([[0], np.cumsum(FRAMES)[:-1]]) / 30
-S = dict(zip(["hook", "title", "risks", "ward", "alarms", "patient", "granite", "evidence", "arch", "end"], STARTS))
+S = dict(zip([n for n, _ in SCENES], STARTS))
+DRAW_SECONDS = 7.6  # src/scenes/Intro.tsx
 
 L = np.zeros(N)
 R = np.zeros(N)
@@ -66,6 +72,9 @@ CHORDS = [
     (S["patient"], [46, 53, 58, 62, 65]),  # Bb
     (S["granite"], [43, 55, 58, 62, 67]),  # Gm9
     (S["evidence"], [41, 53, 57, 60, 65]),  # F
+    (S["details"], [46, 53, 57, 62, 65]),  # Bbmaj7
+    (S["fairness"], [43, 55, 58, 62, 69]),  # Gm add9
+    (S["federated"], [45, 52, 57, 60, 64]),  # Am7
     (S["arch"], [48, 55, 60, 64, 67]),  # C
     (S["end"], [50, 57, 62, 66, 69]),  # D major
 ]
@@ -85,7 +94,7 @@ for k, (start, notes) in enumerate(CHORDS):
 
 # ---- Heartbeat in the hook, in sync with the ECG (Intro.tsx beatTimes). ------------------------------------
 beats, tb, k = [], 0.6, 0
-while tb < 9.4:
+while tb < DRAW_SECONDS:
     beats.append(tb)
     tb += max(0.5, 0.95 - 0.045 * k)
     k += 1
@@ -116,7 +125,7 @@ while pos < S["end"] - 0.2:
 wn = int(0.9 * SR)
 noise = rng.standard_normal(wn)
 whoosh = lowpass(noise, 1800) * np.sin(np.linspace(0, np.pi, wn)) ** 2
-for name in ["title", "risks", "ward", "alarms", "patient", "granite", "evidence", "arch", "end"]:
+for name in [n for n, _ in SCENES[1:]]:
     add(whoosh, S[name] - 0.55, gain=0.16, pan=-0.3)
 
 # ---- Logo hits: deep boom plus shimmer, on the title and the end card. ------------------------------------
@@ -145,7 +154,7 @@ high = alarm(659, 0.14, [0, 0.2, 0.4, 0.85, 1.05])
 medium = alarm(523, 0.2, [0, 0.3, 0.6])
 add(high, S["alarms"] + 24 / 30, gain=0.28)
 add(high, S["alarms"] + 24 / 30 + 2.4, gain=0.18)
-add(medium, S["granite"] + 10 + 95 / 30, gain=0.12)
+add(medium, S["granite"] + (255 + 95) / 30, gain=0.12)
 
 # ---- "Checked against the facts": a soft two-note chime. ----------------------------------------------------
 n = int(1.6 * SR)
@@ -153,6 +162,8 @@ tt = np.arange(n) / SR
 chime = (np.sin(2 * np.pi * hz(88) * tt) * np.exp(-tt * 3) + np.sin(2 * np.pi * hz(95) * np.maximum(tt - 0.12, 0)) * np.exp(-np.maximum(tt - 0.12, 0) * 3) * (tt > 0.12))
 add(chime, S["granite"] + 150 / 30, gain=0.16, pan=0.2)
 add(chime, S["evidence"] + 190 / 30, gain=0.12, pan=-0.2)
+for k, at in enumerate((30, 60, 95, 130)):  # the four tiles in "details"
+    add(chime, S["details"] + at / 30, gain=0.06, pan=-0.3 + 0.2 * k)
 
 # ---- Master: gentle fades, normalise to -1 dBFS, write. ----------------------------------------------------
 master = env(N, 0.4, 2.5)

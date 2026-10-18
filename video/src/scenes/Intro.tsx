@@ -15,29 +15,44 @@ export function beatTimes(until: number) {
     return out;
 }
 
-const HOOK_SECONDS = 10;
+const HOOK_SECONDS = 8;
+// The trace draws across the screen over this many seconds.
+export const DRAW_SECONDS = 7.6;
 const X0 = 80;
 const X1 = 1840;
-const xAt = (t: number) => X0 + (t / 9.4) * (X1 - X0);
+const xAt = (t: number) => X0 + (t / DRAW_SECONDS) * (X1 - X0);
 
-function ecgPath() {
-    const beats = beatTimes(9.4);
-    const base = 640;
-    let d = `M${X0},${base}`;
-    for (const [i, t] of beats.entries()) {
+const BASE = 640;
+
+function ecgPoints(): [number, number][] {
+    const pts: [number, number][] = [[X0, BASE]];
+    for (const [i, t] of beatTimes(DRAW_SECONDS).entries()) {
         const x = xAt(t);
         const amp = 1 + i * 0.06;
-        d += ` L${x - 30},${base} L${x - 22},${base - 10} L${x - 14},${base} L${x - 6},${base + 14} L${x},${base - 150 * amp} L${x + 8},${base + 46} L${x + 16},${base} L${x + 40},${base - 18} L${x + 62},${base}`;
+        pts.push([x - 30, BASE], [x - 22, BASE - 10], [x - 14, BASE], [x - 6, BASE + 14], [x, BASE - 150 * amp], [x + 8, BASE + 46], [x + 16, BASE], [x + 40, BASE - 18], [x + 62, BASE]);
     }
-    return `${d} L${X1},${base}`;
+    pts.push([X1, BASE]);
+    return pts;
 }
 
-const ECG = ecgPath();
+const PTS = ecgPoints();
+const ECG = PTS.map(([x, y], i) => `${i ? "L" : "M"}${x},${y}`).join(" ");
+
+function ecgY(x: number) {
+    for (let i = 1; i < PTS.length; i++) {
+        const [xa, ya] = PTS[i - 1];
+        const [xb, yb] = PTS[i];
+        if (x <= xb) {
+            return xb === xa ? yb : ya + ((x - xa) / (xb - xa)) * (yb - ya);
+        }
+    }
+    return BASE;
+}
 
 export function Hook() {
     const frame = useCurrentFrame();
     const t = frame / FPS;
-    const draw = tween(frame, 0, 9.4 * FPS, 0, 1, Easing.linear);
+    const draw = tween(frame, 0, DRAW_SECONDS * FPS, 0, 1, Easing.linear);
     const color = interpolateColors(t, [0, 5, 9], [C.accent, C.warn, C.danger]);
     const headX = X0 + draw * (X1 - X0);
     return (
@@ -54,7 +69,7 @@ export function Hook() {
                     </clipPath>
                 </defs>
                 <path d={ECG} fill="none" stroke="url(#fadeTrail)" strokeWidth={4} strokeLinejoin="round" clipPath="url(#drawn)" style={{ filter: `drop-shadow(0 0 10px ${color})` }} />
-                <circle cx={headX} cy={640} r={7} fill={color} style={{ filter: `drop-shadow(0 0 16px ${color})` }} />
+                <circle cx={headX} cy={ecgY(headX)} r={7} fill={color} style={{ filter: `drop-shadow(0 0 16px ${color})` }} />
             </svg>
             <div style={{ position: "absolute", left: 140, top: 190, width: 1500 }}>
                 <Words text="Deterioration in intensive care starts hours before it becomes obvious." start={12} size={66} />
@@ -62,7 +77,7 @@ export function Hook() {
             <div style={{ position: "absolute", left: 140, top: 810, width: 1400 }}>
                 <Words
                     text="The UK standard, NEWS2, raises 1.8 alarms per bed every day. Teams learn to tune them out."
-                    start={130}
+                    start={105}
                     size={38}
                     weight={500}
                     color={C.muted}
@@ -97,7 +112,7 @@ export function Title() {
                 </div>
                 <Words text="Bedrock" start={38} size={132} weight={700} style={{ justifyContent: "center", letterSpacing: "-0.04em" }} />
                 <Words text="Real-time AI for critical decisions" start={58} size={46} weight={550} color={C.accent} style={{ justifyContent: "center" }} />
-                <Words text="ICU early warning, running end to end on IBM LinuxONE" start={78} size={30} weight={450} color={C.muted} stagger={1.5} style={{ justifyContent: "center" }} />
+                <Words text="ICU early warning, built end to end on IBM LinuxONE and IBM Z AI acceleration" start={78} size={30} weight={450} color={C.muted} stagger={1.5} style={{ justifyContent: "center" }} />
             </AbsoluteFill>
         </Scene>
     );
@@ -145,7 +160,7 @@ function RiskRing({ label, horizon, color, value, start }: { label: string; hori
 
 export function FiveRisks() {
     const frame = useCurrentFrame();
-    const tickGlow = tween(frame, 215, 240, 0, 1) * (1 - tween(frame, 300, 330, 0, 1));
+    const tickGlow = tween(frame, 185, 210, 0, 1) * (1 - tween(frame, 280, 310, 0, 1));
     return (
         <Scene>
             <div style={{ position: "absolute", left: 120, top: 110 }}>
@@ -158,14 +173,14 @@ export function FiveRisks() {
                 ))}
             </div>
             <div style={{ position: "absolute", left: 120, top: 810, display: "flex", alignItems: "center", gap: 22 }}>
-                <svg width={60} height={60} viewBox="0 0 60 60" style={{ opacity: tickGlow > 0 ? 1 : 0.0 + tween(frame, 200, 215, 0, 1) }}>
+                <svg width={60} height={60} viewBox="0 0 60 60" style={{ opacity: tickGlow > 0 ? 1 : tween(frame, 170, 185, 0, 1) }}>
                     <circle cx={30} cy={30} r={24} fill="none" stroke={C.lineStrong} strokeWidth={6} />
                     <line x1={30} y1={2} x2={30} y2={16} stroke={C.fg} strokeWidth={4} strokeLinecap="round" transform="rotate(120 30 30)" style={{ filter: `drop-shadow(0 0 ${8 * tickGlow}px ${C.fg})` }} />
                 </svg>
-                <Words text="Each risk is scaled to its own alarm line, so 1× always means act." start={200} size={40} weight={550} highlight={{ "1×": C.accent }} />
+                <Words text="Each risk is scaled to its own alarm line, so 1× always means act." start={170} size={40} weight={550} highlight={{ "1×": C.accent }} />
             </div>
             <div style={{ position: "absolute", left: 120, top: 920 }}>
-                <Chip start={290} color={C.accent}>
+                <Chip start={240} color={C.accent}>
                     All 12 beds scored in 0.04 ms per model with IBM Snap ML on LinuxONE
                 </Chip>
             </div>
@@ -173,4 +188,4 @@ export function FiveRisks() {
     );
 }
 
-export const INTRO_DURATIONS = { hook: HOOK_SECONDS * FPS, title: 210, risks: 390 };
+export const INTRO_DURATIONS = { hook: HOOK_SECONDS * FPS, title: 165, risks: 330 };

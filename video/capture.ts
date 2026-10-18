@@ -103,6 +103,20 @@ await dismissToasts(page);
 await shot(page, "patient-top");
 await shot(page, "patient-full", true);
 
+// Observations history: the table view, scrolled into place.
+await page.evaluate(() => {
+    const card = [...document.querySelectorAll("h3")].find((h) => h.textContent?.includes("Observations"))?.closest("section");
+    [...(card?.querySelectorAll<HTMLElement>('[role="radio"]') ?? [])].find((b) => b.textContent?.trim() === "Table")?.click();
+    card?.scrollIntoView({ block: "start" });
+});
+await sleep(800);
+await shot(page, "observations-table");
+await page.evaluate(() => {
+    const card = [...document.querySelectorAll("h3")].find((h) => h.textContent?.includes("Observations"))?.closest("section");
+    [...(card?.querySelectorAll<HTMLElement>('[role="radio"]') ?? [])].find((b) => b.textContent?.trim() === "Charts")?.click();
+});
+await sleep(500);
+
 // 4. Granite SBAR handover for this patient (about 20 s on the VM).
 await clickText(page, "button", "Write handover");
 await page.waitForFunction(() => document.body.innerText.includes("Recommendation"), { timeout: 150_000 });

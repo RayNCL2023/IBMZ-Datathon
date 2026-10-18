@@ -7,7 +7,7 @@ export default function ({ compact = false }: { compact?: boolean }) {
         <Link href="/" className="flex flex-row items-center gap-[.6rem] min-w-0 rounded-control" aria-label={`${BRAND.name}, go to ward`}>
             <svg width="28" height="28" viewBox="0 0 30 30" aria-hidden className="shrink-0">
                 <rect x="1" y="1" width="28" height="28" rx="5" fill="none" stroke="var(--d-fg)" strokeWidth="2" />
-                <path d="M1 15h10M19 15h10M15 1v8M15 21v8" stroke="var(--d-fg)" strokeWidth="2" />
+                <path d="M1 15h8M21 15h8M15 1v8M15 21v8" stroke="var(--d-fg)" strokeWidth="2" />
                 <circle cx="15" cy="15" r="3.5" fill="var(--d-danger)" />
             </svg>
             {!compact && (

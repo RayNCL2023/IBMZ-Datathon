@@ -1,6 +1,6 @@
 import { Sequence, useCurrentFrame } from "remotion";
 import { C } from "../theme";
-import { Callout, Chip, Highlight, type Key, Scene, Screen, ScreenSequence, tween, Words } from "../kit";
+import { Callout, Chip, Highlight, type Key, Patch, Scene, Screen, ScreenSequence, tween, Words } from "../kit";
 
 // Product shots: text on the left, the real app (captured from the live LinuxONE API) on the right.
 const BOX = { x: 600, y: 130, w: 1260, h: 709 };
@@ -40,12 +40,12 @@ export function Ward() {
         { f: 0, r: FULL },
         { f: 80, r: { x: 410, y: 250, w: 1150 } },
         { f: 250, r: { x: 410, y: 250, w: 1150 } },
-        { f: 380, r: { x: 300, y: 150, w: 1620 } },
+        { f: 300, r: { x: 300, y: 150, w: 1620 } },
     ];
     return (
         <Scene>
             <Side title="The whole ward at a glance" body="Twelve real ICU stays, replayed hour by hour and scored live on LinuxONE." />
-            <ScreenSequence srcs={WARD} every={48} keys={keys} frameBox={BOX}>
+            <ScreenSequence srcs={WARD} every={37} keys={keys} frameBox={BOX}>
                 {(map, scale) => (
                     <>
                         <Highlight map={map} scale={scale} x={418} y={331} w={324} h={274} start={110} color={C.danger} />
@@ -66,7 +66,7 @@ export function Alarms() {
     const keys: Key[] = [
         { f: 0, r: { x: 300, y: 150, w: 1620 } },
         { f: 60, r: { x: 880, y: 330, w: 1040 } },
-        { f: 210, r: { x: 880, y: 330, w: 1040 } },
+        { f: 195, r: { x: 880, y: 330, w: 1040 } },
     ];
     return (
         <Scene>
@@ -75,8 +75,9 @@ export function Alarms() {
                 <Screen src="capture/ward-alarms.png" keys={keys} frameBox={BOX}>
                     {(map, scale) => (
                         <>
-                            <Highlight map={map} scale={scale} x={1522} y={835} w={382} h={144} start={70} color={C.danger} />
                             <Highlight map={map} scale={scale} x={1435} y={331} w={324} h={274} start={30} color={C.danger} />
+                            <Patch src="capture/ward-alarms.png" map={map} scale={scale} x={1518} y={505} w={398} h={575} />
+                            <Highlight map={map} scale={scale} x={1522} y={835} w={382} h={144} start={70} color={C.danger} />
                         </>
                     )}
                 </Screen>
@@ -101,7 +102,7 @@ export function Patient() {
         { f: 0, r: { x: 400, y: 120, w: 1460 } },
         { f: 120, r: { x: 400, y: 120, w: 1460 } },
         { f: 190, r: { x: 410, y: 300, w: 1380 } },
-        { f: 330, r: { x: 430, y: 310, w: 1340 } },
+        { f: 270, r: { x: 430, y: 310, w: 1340 } },
     ];
     return (
         <Scene>
@@ -111,13 +112,13 @@ export function Patient() {
                 {(map, scale) => (
                     <>
                         <Highlight map={map} scale={scale} x={1646} y={598} w={96} h={18} start={200} color={C.danger} radius={10} />
-                        <Highlight map={map} scale={scale} x={1596} y={410} w={143} h={17} start={250} color={C.dangerInk} radius={10} />
+                        <Highlight map={map} scale={scale} x={1596} y={410} w={143} h={17} start={215} color={C.dangerInk} radius={10} />
                     </>
                 )}
             </Screen>
             <Callout x={1290} y={720} start={206} title="One alarm line for all five risks" body="Above 1× means act, whatever the condition." color={C.danger} width={500} />
             <div style={{ position: "absolute", left: 100, top: 600 }}>
-                <Chip start={260} color={C.dangerInk}>
+                <Chip start={215} color={C.dangerInk}>
                     Sepsis labelled at hour 34: the model was already above its line
                 </Chip>
             </div>
@@ -129,21 +130,21 @@ export function Granite() {
     const handoverKeys: Key[] = [
         { f: 0, r: { x: 300, y: 0, w: 1620 } },
         { f: 90, r: { x: 410, y: 70, w: 1360 } },
-        { f: 300, r: { x: 410, y: 70, w: 1360 } },
+        { f: 255, r: { x: 410, y: 70, w: 1360 } },
     ];
     const shiftKeys: Key[] = [
         { f: 0, r: { x: 300, y: 0, w: 1400 } },
         { f: 80, r: { x: 395, y: 200, w: 1150 } },
-        { f: 300, r: { x: 395, y: 220, w: 1150 } },
+        { f: 255, r: { x: 395, y: 220, w: 1150 } },
     ];
     return (
         <Scene>
             <SideSwap
-                at={300}
-                a={{ title: "A handover written on the mainframe", body: "IBM Granite 4.0 runs on the same LinuxONE machine and turns the facts into a spoken SBAR handover." }}
+                at={255}
+                a={{ title: "Granite 4.0 on IBM's AI accelerator", body: "IBM Granite runs on LinuxONE through llama.cpp built with zDNN for the Integrated Accelerator for AI, and writes a spoken SBAR handover." }}
                 b={{ title: "Checked before it is shown", body: "Every number must match the record. If Granite states a risk as a diagnosis, Bedrock holds it back." }}
             />
-            <Sequence durationInFrames={300} layout="none">
+            <Sequence durationInFrames={255} layout="none">
                 <Scene fadeIn={1}>
                     <Screen src="capture/handover.png" keys={handoverKeys} frameBox={BOX}>
                         {(map, scale) => (
@@ -160,7 +161,7 @@ export function Granite() {
                     </div>
                 </Scene>
             </Sequence>
-            <Sequence from={300} durationInFrames={300} layout="none">
+            <Sequence from={255} durationInFrames={255} layout="none">
                 <Scene fadeOut={1}>
                     <Screen src="capture/shift-summary.png" keys={shiftKeys} frameBox={BOX}>
                         {(map, scale) => <Highlight map={map} scale={scale} x={405} y={259} w={1110} h={115} start={95} color={C.warn} />}
@@ -172,4 +173,4 @@ export function Granite() {
     );
 }
 
-export const PRODUCT_DURATIONS = { ward: 390, alarms: 210, patient: 330, granite: 600 };
+export const PRODUCT_DURATIONS = { ward: 300, alarms: 195, patient: 270, granite: 510 };

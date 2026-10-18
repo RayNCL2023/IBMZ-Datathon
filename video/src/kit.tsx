@@ -113,7 +113,7 @@ export function Logo({ size = 160, start = 0, dot = C.accent }: { size?: number;
     return (
         <svg width={size} height={size} viewBox="0 0 30 30" style={{ overflow: "visible" }}>
             <rect x="1" y="1" width="28" height="28" rx="5" fill="none" stroke={C.fg} strokeWidth="2" strokeLinecap="round" pathLength={1} strokeDasharray={`${wall} 1.01`} />
-            <path d="M1 15h10M19 15h10M15 1v8M15 21v8" stroke={C.fg} strokeWidth="2" pathLength={1} strokeDasharray="1" strokeDashoffset={1 - doors} />
+            <path d="M1 15h8M21 15h8M15 1v8M15 21v8" stroke={C.fg} strokeWidth="2" pathLength={1} strokeDasharray="1" strokeDashoffset={1 - doors} />
             <circle cx="15" cy="15" r={3.5 * pop} fill={dot} />
         </svg>
     );
@@ -147,12 +147,15 @@ export function Screen({
     keys,
     frameBox = { x: 80, y: 60, w: 1760, h: 990 },
     opacity = 1,
+    imgH = 1080,
     children,
 }: {
     src: string;
     keys: Key[];
     frameBox?: { x: number; y: number; w: number; h: number };
     opacity?: number;
+    // Layout height of the capture (1080 for a viewport shot, more for a full-page one).
+    imgH?: number;
     children?: (map: Mapper, scale: number) => React.ReactNode;
 }) {
     const frame = useCurrentFrame();
@@ -183,7 +186,7 @@ export function Screen({
                         left: 0,
                         top: 0,
                         width: 1920,
-                        height: 1080,
+                        height: imgH,
                         transformOrigin: "0 0",
                         transform: `scale(${scale}) translate(${-cam.x}px, ${-cam.y}px)`,
                     }}
@@ -259,6 +262,22 @@ export function Highlight({ map, x, y, w, h, scale, start, color = C.accent, rad
                 transform: `scale(${1.06 - 0.06 * p})`,
             }}
         />
+    );
+}
+
+// ------------------------------------------------------------------------------------------------------
+// Patch: redraws a region of the capture on top of overlays, so UI that floats above the page in the real
+// app (toasts, dialogs) also floats above our highlights.
+// ------------------------------------------------------------------------------------------------------
+export function Patch({ src, map, scale, x, y, w, h, imgH = 1080 }: { src: string; map: Mapper; scale: number; x: number; y: number; w: number; h: number; imgH?: number }) {
+    const [px, py] = map(x, y);
+    return (
+        <div style={{ position: "absolute", left: px, top: py, width: w * scale, height: h * scale, overflow: "hidden" }}>
+            <Img
+                src={staticFile(src)}
+                style={{ position: "absolute", left: -x * scale, top: -y * scale, width: 1920 * scale, height: imgH * scale, maxWidth: "none" }}
+            />
+        </div>
     );
 }
 
